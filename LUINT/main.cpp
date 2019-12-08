@@ -7,7 +7,8 @@
 #include <imgui_impl_opengl3.h>
 
 #include "machine.h"
-#include "luastateinspector.h"
+#include "gui.h"
+#include "hostdata.h"
 
 // Using OpenGL 4.3
 #define GLSL_VERSION "#version 430"
@@ -31,6 +32,9 @@ int main(void)
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 
+	// Enable vsync
+	glfwSwapInterval(1);
+
 	if (!gladLoadGL()) {
 		return -1;
 	}
@@ -43,7 +47,7 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(GLSL_VERSION);
 
-	LUINT::Machines::Computer machine = LUINT::Machines::Computer(std::string("Default computer"), std::string("aleok studios"));
+	//LUINT::Data::machines.emplace_back(std::make_unique<LUINT::Machines::Machine>(LUINT::Machines::ProcessingUnit(std::string("Default computer"), std::string("aleok studios"))));
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -55,8 +59,12 @@ int main(void)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::ShowDemoWindow();
-		machine.Render();
+		LUINT::GUI::DrawMainMenuBar();
+		using Machine = LUINT::Machines::Machine;
+		for (std::unique_ptr<Machine>& machine : LUINT::Data::machines)
+		{
+			machine->Render();
+		}
 
 		ImGui::Render();
 

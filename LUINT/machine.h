@@ -4,6 +4,7 @@
 
 struct lua_State;
 struct ImGuiIO;
+typedef int ImGuiWindowFlags;
 
 #define MAX_MACHINENAME_LENGTH 32
 
@@ -34,6 +35,11 @@ namespace LUINT::Machines
 
 	protected:
 		void AddAboutMenuItem();
+		bool BeginWindow(ImGuiWindowFlags flags = 0);
+
+	private:
+		bool showMachineInfo = false;
+		bool editingName = false;
 	};
 
 	struct StateMachine : public Machine
@@ -46,19 +52,29 @@ namespace LUINT::Machines
 		lua_State* state;
 	};
 
-	struct Computer : public StateMachine
+	struct ProcessingUnit : public StateMachine
 	{
-		Computer(std::string _name, std::string _manufacturer);
+		ProcessingUnit(std::string _name, std::string _manufacturer);
 
 		std::string get_description() override { return std::string("Controllable machine that accepts input and can process user-given commands."); }
 
 		virtual void Render() override;
+
+	private:
+		bool showStateInspector = false;
+	};
+
+	struct Monitor : public Machine
+	{
+		Monitor(std::string _name, std::string _manufacturer);
+
+		std::string get_description() override { return std::string("Shows data from a processing unit."); }
 	};
 
 	struct Terminal : public Machine
 	{
 		Terminal(std::string _name, std::string _manufacturer);
 
-		std::string get_description() override { return std::string("Controllable machine that accepts input and can process user-given commands."); }
+		std::string get_description() override { return std::string("Can remotely connect to a processing unit to access it without an Operating System."); }
 	};
 }

@@ -16,7 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="computer.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -28,7 +27,7 @@
     <ClCompile Include="UID.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="luastateinspector.cpp">
+    <ClCompile Include="gui.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
@@ -39,10 +38,13 @@
     <ClInclude Include="UID.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="luastateinspector.h">
+    <ClInclude Include="diskreader.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="diskreader.h">
+    <ClInclude Include="gui.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="hostdata.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

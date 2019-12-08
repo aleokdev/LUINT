@@ -14,11 +14,9 @@ namespace LUINT
 
 	std::string UID::as_string()
 	{
-		std::string result = std::string();
-		result.append("{");
-		result.append(std::to_string((unsigned int)UID::last_hash));
-		result.append("}");
+		char buf[32];
+		sprintf_s(buf, 32, "{%08i}", hash);
 
-		return result;
+		return std::string(buf);
 	}
 }

@@ -1,9 +1,11 @@
-#include "luastateinspector.h"
+#include "gui.h"
 #include <imgui.h>
 #include "lua.hpp"
 #include "lualib.h"
 #include <string>
 #include <sstream>
+#include "machine.h"
+#include "hostdata.h"
 
 void drawLuaStateInspectorTable(lua_State * state)
 {
@@ -81,4 +83,42 @@ void LUINT::GUI::DrawLuaStateInspector(lua_State * state)
 	}
 
 	ImGui::End();
+}
+
+void LUINT::GUI::DrawMainMenuBar()
+{
+	ImGuiIO& io = ImGui::GetIO();
+
+	if (!ImGui::BeginMainMenuBar())
+	{
+		ImGui::EndMainMenuBar();
+		return;
+	}
+	if (ImGui::BeginMenu("Create"))
+	{
+		using namespace LUINT::Machines;
+		if (ImGui::MenuItem("New Empty Machine", NULL))
+			LUINT::Data::machines.emplace_back(std::make_unique<Machine>(Machine(std::string("Default machine"), std::string("aleok studios"))));
+
+		if (ImGui::MenuItem("New Processing Unit", NULL))
+			LUINT::Data::machines.emplace_back(std::make_unique<ProcessingUnit>(ProcessingUnit(std::string("Default computer"), std::string("aleok studios"))));
+
+		if (ImGui::MenuItem("New Monitor", NULL))
+			LUINT::Data::machines.emplace_back(std::make_unique<Monitor>(Monitor(std::string("Default monitor"), std::string("aleok studios"))));
+
+		if (ImGui::MenuItem("New Terminal", NULL))
+			LUINT::Data::machines.emplace_back(std::make_unique<Terminal>(Terminal(std::string("Default terminal"), std::string("aleok studios"))));
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("Debug"))
+	{
+		if (ImGui::MenuItem("Show Demo Window", "Ctrl+D"))
+			ImGui::ShowDemoWindow();
+
+		ImGui::EndMenu();
+	}
+
+	ImGui::EndMainMenuBar();
 }

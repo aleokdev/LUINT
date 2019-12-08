@@ -142,11 +142,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="computer.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="luastateinspector.cpp" />
+    <ClCompile Include="gui.cpp" />
     <ClCompile Include="machine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="UID.cpp" />
@@ -161,7 +160,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="diskreader.h" />
-    <ClInclude Include="luastateinspector.h" />
+    <ClInclude Include="gui.h" />
+    <ClInclude Include="hostdata.h" />
     <ClInclude Include="machine.h" />
     <ClInclude Include="UID.h" />
   </ItemGroup>

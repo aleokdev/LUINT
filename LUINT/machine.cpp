@@ -1,7 +1,7 @@
 #include "machine.h"
 #include "lua.hpp"
 #include <imgui.h>
-#include "luastateinspector.h"
+#include "gui.h"
 
 using namespace LUINT;
 
@@ -42,11 +42,19 @@ namespace LUINT::Machines
 		// TODO: UnmountFromCurrentTable
 	}
 
+	bool Machine::BeginWindow(ImGuiWindowFlags flags)
+	{
+		char buf[MAX_MACHINENAME_LENGTH + 32];
+		sprintf_s(buf, MAX_MACHINENAME_LENGTH + 32, "%s###m%s", name.c_str(), uid.as_string().c_str()); // Use ### to have an unique identifier (even when the machine changes its name)
+
+		return ImGui::Begin(buf, nullptr, flags);
+	}
+
 	void Machine::Render()
 	{
 		ImGuiIO& io = ImGui::GetIO();
 
-		if (!ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_MenuBar))
+		if (!this->BeginWindow(ImGuiWindowFlags_MenuBar))
 		{
 			// Early out if the window is collapsed, as an optimization.
 			ImGui::End();
@@ -68,19 +76,20 @@ namespace LUINT::Machines
 
 	void Machine::AddAboutMenuItem()
 	{
-		static bool showMachineInfo = false;
-
 		if (ImGui::BeginMenu("About"))
 		{
-			ImGui::MenuItem("Machine Information", "Ctrl + I", &showMachineInfo);
+			ImGui::MenuItem("Machine Information", "Ctrl+I", &showMachineInfo);
 			ImGui::EndMenu();
 		}
 
 		if (showMachineInfo)
 		{
-			ImGui::Begin("Machine Information", &showMachineInfo);
+			{
+				char machineInfoName[64];
+				sprintf_s(machineInfoName, 64, "Machine Information###%s", uid.as_string().c_str());
+				ImGui::Begin(machineInfoName, &showMachineInfo);
+			}
 
-			static bool editingName = false;
 			if (editingName)
 			{
 				static char buf[32] = "";
@@ -100,7 +109,12 @@ namespace LUINT::Machines
 			ImGui::Text("Machine manufacturer: %s", manufacturer.c_str());
 
 			ImGui::TextUnformatted("Description:");
-			ImGui::TextColored(ImVec4(92, 92, 92, 255), get_description().c_str());
+			ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1), get_description().c_str());
+			if (ImGui::CollapsingHeader("Advanced information"))
+			{
+				ImGui::Text("UID: %s", uid.as_string().c_str());
+				ImGui::Text("Lua version: %s", LUA_VERSION);
+			}
 			ImGui::End();
 		}
 	}
@@ -110,24 +124,20 @@ namespace LUINT::Machines
 		state = luaL_newstate();
 	}
 
-	Computer::Computer(std::string _name, std::string _manufacturer) : StateMachine(_name, _manufacturer)
+	ProcessingUnit::ProcessingUnit(std::string _name, std::string _manufacturer) : StateMachine(_name, _manufacturer)
 	{
 		luaopen_string(state);
 		luaopen_base(state);
 		luaopen_table(state);
 	}
 
-	void Computer::Render()
+	void ProcessingUnit::Render()
 	{
-		static bool showStateInspector = false;
-
 		ImGuiIO& io = ImGui::GetIO();
 
 		ImGui::SetNextWindowSize(ImVec2(800, 600));
-		char buf[MAX_MACHINENAME_LENGTH + 32];
-		sprintf_s(buf, MAX_MACHINENAME_LENGTH + 32, "%s###m%s", name.c_str(), uid.as_string()); // Use ### to have an unique identifier (even when the machine changes its name)
 
-		if (!ImGui::Begin(buf, nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_MenuBar))
+		if (!this->BeginWindow(ImGuiWindowFlags_MenuBar))
 		{
 			// Early out if the window is collapsed, as an optimization.
 			ImGui::End();
@@ -155,5 +165,13 @@ namespace LUINT::Machines
 		{
 			LUINT::GUI::DrawLuaStateInspector(state);
 		}
+	}
+
+	Monitor::Monitor(std::string _name, std::string _manufacturer) : Machine(_name, _manufacturer)
+	{
+	}
+
+	Terminal::Terminal(std::string _name, std::string _manufacturer) : Machine(_name, _manufacturer)
+	{
 	}
 }
