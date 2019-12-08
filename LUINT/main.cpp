@@ -6,6 +6,9 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include "machine.h"
+#include "luastateinspector.h"
+
 // Using OpenGL 4.3
 #define GLSL_VERSION "#version 430"
 
@@ -18,7 +21,7 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(1000, 600, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(1600, 800, "LUINT", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -40,6 +43,7 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(GLSL_VERSION);
 
+	LUINT::Machines::Computer machine = LUINT::Machines::Computer(std::string("Default computer"), std::string("aleok studios"));
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -52,6 +56,7 @@ int main(void)
 		ImGui::NewFrame();
 
 		ImGui::ShowDemoWindow();
+		machine.Render();
 
 		ImGui::Render();
 
