@@ -67,9 +67,9 @@ void drawLuaStateInspectorTable(lua_State * state)
 	ImGui::Unindent();
 }
 
-void LUINT::GUI::DrawLuaStateInspector(lua_State * state)
+void LUINT::GUI::DrawLuaStateInspector(lua_State * state, bool* p_open)
 {
-	if (!ImGui::Begin("State Inspector", nullptr, 0))
+	if (!ImGui::Begin("State Inspector", p_open, 0))
 	{
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
@@ -80,6 +80,26 @@ void LUINT::GUI::DrawLuaStateInspector(lua_State * state)
 	{
 		lua_pushglobaltable(state);
 		drawLuaStateInspectorTable(state);
+	}
+
+	ImGui::End();
+}
+
+void LUINT::GUI::DrawLuaStateInspector(LUINT::Machines::StateMachine& machine, bool* p_open)
+{
+	char buf[64];
+	sprintf_s(buf, 64, "State Inspector of %s###s%s", machine.name.c_str(), machine.uid.as_string().c_str());
+	if (!ImGui::Begin(buf, p_open, 0))
+	{
+		// Early out if the window is collapsed, as an optimization.
+		ImGui::End();
+		return;
+	}
+
+	if (ImGui::CollapsingHeader("GLOBALS"))
+	{
+		lua_pushglobaltable(machine.get_state());
+		drawLuaStateInspectorTable(machine.get_state());
 	}
 
 	ImGui::End();

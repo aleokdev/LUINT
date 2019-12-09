@@ -42,12 +42,13 @@ namespace LUINT::Machines
 		void Render();
 
 	protected:
+		virtual void RenderChildWindows() {};
 		virtual void RenderWindow();
 		virtual void RenderMenuItems() {}
 
 	private:
 		void AddAboutMenuItem();
-		bool BeginWindow(ImGuiWindowFlags flags = 0);
+		void ShowMachineInfo();
 
 		bool showMachineInfo = false;
 		bool editingName = false;
@@ -71,6 +72,7 @@ namespace LUINT::Machines
 
 	protected:
 		void RenderWindow() override;
+		void RenderChildWindows() override;
 		void RenderMenuItems() override;
 
 	private:

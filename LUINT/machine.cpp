@@ -60,20 +60,61 @@ namespace LUINT::Machines
 
 #pragma region Rendering
 
-	bool Machine::BeginWindow(ImGuiWindowFlags flags)
+	void Machine::ShowMachineInfo()
 	{
-		char buf[MAX_MACHINENAME_LENGTH + 32];
-		sprintf_s(buf, MAX_MACHINENAME_LENGTH + 32, "%s###m%s", name.c_str(), uid.as_string().c_str()); // Use ### to have an unique identifier (even when the machine changes its name)
+		{
+			char machineInfoName[64];
+			sprintf_s(machineInfoName, 64, "Machine Information###%s", uid.as_string().c_str());
+			if (!ImGui::Begin(machineInfoName, &showMachineInfo))
+			{
+				ImGui::End();
+				return;
+			}
+		}
 
-		return ImGui::Begin(buf, nullptr, flags);
+		if (editingName)
+		{
+			static char buf[32] = "";
+			if (ImGui::InputTextWithHint("", "Input new machine name...", buf, 32, ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				name = buf;
+				editingName = false;
+			}
+		}
+		else
+		{
+			ImGui::Text("Machine name: %s", name.c_str());
+			ImGui::SameLine();
+			editingName = ImGui::Button("Change");
+		}
+
+		ImGui::Text("Machine manufacturer: %s", manufacturer.c_str());
+
+		ImGui::TextUnformatted("Description:");
+		ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1), get_description().c_str());
+		if (ImGui::CollapsingHeader("Advanced information"))
+		{
+			ImGui::Text("UID: %s", uid.as_string().c_str());
+			ImGui::Text("Lua version: %s", LUA_VERSION);
+		}
+		ImGui::End();
 	}
-
+	
 	void Machine::Render()
 	{
 		ImGuiIO& io = ImGui::GetIO();
 
+		if (showMachineInfo)
+			ShowMachineInfo();
+
+		RenderChildWindows();
+
 		ImGui::SetNextWindowSize(ImVec2(400, 400));
-		if (!this->BeginWindow(ImGuiWindowFlags_MenuBar))
+
+		char buf[MAX_MACHINENAME_LENGTH + 32];
+		sprintf_s(buf, MAX_MACHINENAME_LENGTH + 32, "%s###m%s", name.c_str(), uid.as_string().c_str()); // Use ### to have an unique identifier (even when the machine changes its name)
+
+		if (!ImGui::Begin(buf, nullptr, ImGuiWindowFlags_MenuBar))
 		{
 			// Early out if the window is collapsed, as an optimization.
 			ImGui::End();
@@ -104,42 +145,6 @@ namespace LUINT::Machines
 			ImGui::MenuItem("Machine Information", "Ctrl+I", &showMachineInfo);
 			ImGui::EndMenu();
 		}
-
-		if (showMachineInfo)
-		{
-			{
-				char machineInfoName[64];
-				sprintf_s(machineInfoName, 64, "Machine Information###%s", uid.as_string().c_str());
-				ImGui::Begin(machineInfoName, &showMachineInfo);
-			}
-
-			if (editingName)
-			{
-				static char buf[32] = "";
-				if (ImGui::InputTextWithHint("", "Input new machine name...", buf, 32, ImGuiInputTextFlags_EnterReturnsTrue))
-				{
-					name = buf;
-					editingName = false;
-				}
-			}
-			else
-			{
-				ImGui::Text("Machine name: %s", name.c_str());
-				ImGui::SameLine();
-				editingName = ImGui::Button("Change");
-			}
-
-			ImGui::Text("Machine manufacturer: %s", manufacturer.c_str());
-
-			ImGui::TextUnformatted("Description:");
-			ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1), get_description().c_str());
-			if (ImGui::CollapsingHeader("Advanced information"))
-			{
-				ImGui::Text("UID: %s", uid.as_string().c_str());
-				ImGui::Text("Lua version: %s", LUA_VERSION);
-			}
-			ImGui::End();
-		}
 	}
 
 	void ProcessingUnit::RenderMenuItems()
@@ -151,15 +156,18 @@ namespace LUINT::Machines
 		}
 	}
 
+	void ProcessingUnit::RenderChildWindows()
+	{
+		if (showStateInspector)
+		{
+			LUINT::GUI::DrawLuaStateInspector(*this, &showStateInspector);
+		}
+	}
+
 	void ProcessingUnit::RenderWindow()
 	{
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextWrapped("Machine currently powered down.");
-
-		if (showStateInspector)
-		{
-			LUINT::GUI::DrawLuaStateInspector(state);
-		}
 	}
 
 #pragma endregion Rendering
