@@ -157,8 +157,4 @@ namespace LUINT::Machines
 	Monitor::Monitor(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)
 	{
 	}
-
-	Terminal::Terminal(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)
-	{
-	}
 }
