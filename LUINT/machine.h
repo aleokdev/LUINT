@@ -90,6 +90,7 @@ namespace LUINT::Machines
 		bool showTerminal = false;
 		const int terminalBufferSize = 128;
 		char terminalBuffer[128] = "";
+		std::vector<std::string> terminalLog;
 	};
 
 	struct Monitor : public Machine
