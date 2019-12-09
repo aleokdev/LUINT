@@ -107,6 +107,7 @@ void LUINT::GUI::DrawLuaStateInspector(LUINT::Machines::StateMachine& machine, b
 
 void LUINT::GUI::DrawMainMenuBar(LUINT::Data::SessionData& session)
 {
+	static bool showDemo = false;
 	ImGuiIO& io = ImGui::GetIO();
 
 	if (!ImGui::BeginMainMenuBar())
@@ -134,11 +135,13 @@ void LUINT::GUI::DrawMainMenuBar(LUINT::Data::SessionData& session)
 
 	if (ImGui::BeginMenu("Debug"))
 	{
-		if (ImGui::MenuItem("Show Demo Window", "Ctrl+D"))
-			ImGui::ShowDemoWindow();
+		ImGui::MenuItem("Show Demo Window", "Ctrl+D", &showDemo);
 
 		ImGui::EndMenu();
 	}
 
 	ImGui::EndMainMenuBar();
+
+	if(showDemo)
+		ImGui::ShowDemoWindow();
 }
