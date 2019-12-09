@@ -1,12 +1,18 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include <utility>
 #include "machine.h"
 
 namespace LUINT
 {
 	namespace Data
 	{
-		inline std::vector<std::unique_ptr<LUINT::Machines::Machine>> machines;
+		struct SessionData
+		{
+			using Machine = LUINT::Machines::Machine;
+			std::vector<std::unique_ptr<Machine>> machines;
+			std::vector<std::pair<Machine*, Machine*>> connections;
+		};
 	}
 }

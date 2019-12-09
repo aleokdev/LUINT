@@ -48,6 +48,7 @@ int main(void)
 	ImGui_ImplOpenGL3_Init(GLSL_VERSION);
 
 	//LUINT::Data::machines.emplace_back(std::make_unique<LUINT::Machines::Machine>(LUINT::Machines::ProcessingUnit(std::string("Default computer"), std::string("aleok studios"))));
+	LUINT::Data::SessionData session;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -59,9 +60,9 @@ int main(void)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		LUINT::GUI::DrawMainMenuBar();
+		LUINT::GUI::DrawMainMenuBar(session);
 		using Machine = LUINT::Machines::Machine;
-		for (std::unique_ptr<Machine>& machine : LUINT::Data::machines)
+		for (std::unique_ptr<Machine>& machine : session.machines)
 		{
 			machine->Render();
 		}

@@ -2,13 +2,29 @@
 #include "lua.hpp"
 #include <imgui.h>
 #include "gui.h"
+#include <algorithm>
+#include "hostdata.h"
 
 using namespace LUINT;
 
 namespace LUINT::Machines
 {
-	Machine::Machine(std::string _name, std::string _manufacturer) : name(_name), manufacturer(_manufacturer), uid(UID::generate())
+	Machine::Machine(Data::SessionData& _session, std::string _name, std::string _manufacturer) : session(&_session), name(_name), manufacturer(_manufacturer), uid(UID::generate())
 	{
+	}
+
+	Machine::~Machine()
+	{
+		// Remove the machine from any connections.
+
+		int i = 0;
+		for (auto& connection : session->connections)
+		{
+			if (connection.first == this || connection.second == this)
+				session->connections.erase(session->connections.begin() + i);
+
+			i++;
+		}
 	}
 
 	void Machine::MountToCurrentTable(lua_State * state)
@@ -42,6 +58,8 @@ namespace LUINT::Machines
 		// TODO: UnmountFromCurrentTable
 	}
 
+#pragma region Rendering
+
 	bool Machine::BeginWindow(ImGuiWindowFlags flags)
 	{
 		char buf[MAX_MACHINENAME_LENGTH + 32];
@@ -54,6 +72,7 @@ namespace LUINT::Machines
 	{
 		ImGuiIO& io = ImGui::GetIO();
 
+		ImGui::SetNextWindowSize(ImVec2(400, 400));
 		if (!this->BeginWindow(ImGuiWindowFlags_MenuBar))
 		{
 			// Early out if the window is collapsed, as an optimization.
@@ -63,15 +82,19 @@ namespace LUINT::Machines
 
 		if (ImGui::BeginMenuBar())
 		{
+			RenderMenuItems();
 			AddAboutMenuItem();
 			ImGui::EndMenuBar();
 		}
 
-		ImGui::PushItemWidth(ImGui::GetFontSize() * -12); // Negative number to get fixed width
-
-		ImGui::TextWrapped("This is a default render text -- Override it to have control of what is shown here!");
+		RenderWindow();
 
 		ImGui::End();
+	}
+
+	void Machine::RenderWindow()
+	{
+		ImGui::TextWrapped("This is a default render text -- Override Machine::RenderWindow to have control of what is shown here!");
 	}
 
 	void Machine::AddAboutMenuItem()
@@ -119,47 +142,19 @@ namespace LUINT::Machines
 		}
 	}
 
-	StateMachine::StateMachine(std::string _name, std::string _manufacturer) : Machine(_name, _manufacturer)
+	void ProcessingUnit::RenderMenuItems()
 	{
-		state = luaL_newstate();
+		if (ImGui::BeginMenu("Debug"))
+		{
+			ImGui::MenuItem("State Inspector", NULL, &showStateInspector);
+			ImGui::EndMenu();
+		}
 	}
 
-	ProcessingUnit::ProcessingUnit(std::string _name, std::string _manufacturer) : StateMachine(_name, _manufacturer)
+	void ProcessingUnit::RenderWindow()
 	{
-		luaopen_string(state);
-		luaopen_base(state);
-		luaopen_table(state);
-	}
-
-	void ProcessingUnit::Render()
-	{
-		ImGuiIO& io = ImGui::GetIO();
-
-		ImGui::SetNextWindowSize(ImVec2(800, 600));
-
-		if (!this->BeginWindow(ImGuiWindowFlags_MenuBar))
-		{
-			// Early out if the window is collapsed, as an optimization.
-			ImGui::End();
-			return;
-		}
-
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("Debug"))
-			{
-				ImGui::MenuItem("State Inspector", NULL, &showStateInspector);
-				ImGui::EndMenu();
-			}
-			AddAboutMenuItem();
-			ImGui::EndMenuBar();
-		}
-
 		ImGui::AlignTextToFramePadding();
-		ImGui::PushItemWidth(ImGui::GetFontSize() * -12); // Negative number to get fixed width
-		ImGui::Text("Machine currently powered down.");
-
-		ImGui::End();
+		ImGui::TextWrapped("Machine currently powered down.");
 
 		if (showStateInspector)
 		{
@@ -167,11 +162,25 @@ namespace LUINT::Machines
 		}
 	}
 
-	Monitor::Monitor(std::string _name, std::string _manufacturer) : Machine(_name, _manufacturer)
+#pragma endregion Rendering
+
+	StateMachine::StateMachine(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)
+	{
+		state = luaL_newstate();
+	}
+
+	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name, std::string _manufacturer) : StateMachine(_session, _name, _manufacturer)
+	{
+		luaopen_string(state);
+		luaopen_base(state);
+		luaopen_table(state);
+	}
+
+	Monitor::Monitor(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)
 	{
 	}
 
-	Terminal::Terminal(std::string _name, std::string _manufacturer) : Machine(_name, _manufacturer)
+	Terminal::Terminal(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)
 	{
 	}
 }

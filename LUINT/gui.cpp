@@ -85,7 +85,7 @@ void LUINT::GUI::DrawLuaStateInspector(lua_State * state)
 	ImGui::End();
 }
 
-void LUINT::GUI::DrawMainMenuBar()
+void LUINT::GUI::DrawMainMenuBar(LUINT::Data::SessionData& session)
 {
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -98,16 +98,16 @@ void LUINT::GUI::DrawMainMenuBar()
 	{
 		using namespace LUINT::Machines;
 		if (ImGui::MenuItem("New Empty Machine", NULL))
-			LUINT::Data::machines.emplace_back(std::make_unique<Machine>(Machine(std::string("Default machine"), std::string("aleok studios"))));
+			session.machines.emplace_back(std::make_unique<Machine>(Machine(session, std::string("Default machine"), std::string("aleok studios"))));
 
 		if (ImGui::MenuItem("New Processing Unit", NULL))
-			LUINT::Data::machines.emplace_back(std::make_unique<ProcessingUnit>(ProcessingUnit(std::string("Default computer"), std::string("aleok studios"))));
+			session.machines.emplace_back(std::make_unique<ProcessingUnit>(ProcessingUnit(session, std::string("Default computer"), std::string("aleok studios"))));
 
 		if (ImGui::MenuItem("New Monitor", NULL))
-			LUINT::Data::machines.emplace_back(std::make_unique<Monitor>(Monitor(std::string("Default monitor"), std::string("aleok studios"))));
+			session.machines.emplace_back(std::make_unique<Monitor>(Monitor(session, std::string("Default monitor"), std::string("aleok studios"))));
 
 		if (ImGui::MenuItem("New Terminal", NULL))
-			LUINT::Data::machines.emplace_back(std::make_unique<Terminal>(Terminal(std::string("Default terminal"), std::string("aleok studios"))));
+			session.machines.emplace_back(std::make_unique<Terminal>(Terminal(session, std::string("Default terminal"), std::string("aleok studios"))));
 
 		ImGui::EndMenu();
 	}
