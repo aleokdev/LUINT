@@ -143,5 +143,5 @@ void LUINT::GUI::DrawMainMenuBar(LUINT::Data::SessionData& session)
 	ImGui::EndMainMenuBar();
 
 	if(showDemo)
-		ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow(&showDemo);
 }
