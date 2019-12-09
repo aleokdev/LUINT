@@ -112,7 +112,7 @@ namespace LUINT::Machines
 		ImGui::SetNextWindowSize(ImVec2(400, 400));
 
 		char buf[MAX_MACHINENAME_LENGTH + 32];
-		sprintf_s(buf, MAX_MACHINENAME_LENGTH + 32, "%s###m%s", name.c_str(), uid.as_string().c_str()); // Use ### to have an unique identifier (even when the machine changes its name)
+		sprintf_s(buf, MAX_MACHINENAME_LENGTH + 32, "%s###m%s", GetWindowName().c_str(), uid.as_string().c_str()); // Use ### to have an unique identifier (even when the machine changes its name)
 
 		if (!ImGui::Begin(buf, nullptr, ImGuiWindowFlags_MenuBar))
 		{

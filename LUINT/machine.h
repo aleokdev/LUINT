@@ -41,10 +41,18 @@ namespace LUINT::Machines
 		// Renders this machine as a window in the GLFW window.
 		void Render();
 
+		virtual void OnConnect(Machine& other) {}
+		virtual void OnDisconnect(Machine& other) {}
+
 	protected:
 		virtual void RenderChildWindows() {};
 		virtual void RenderWindow();
 		virtual void RenderMenuItems() {}
+
+		inline virtual std::string GetWindowName()
+		{
+			return name;
+		}
 
 	private:
 		void AddAboutMenuItem();
@@ -91,5 +99,17 @@ namespace LUINT::Machines
 		Terminal(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
 
 		std::string get_description() override { return std::string("Can remotely connect to a processing unit to access it without an Operating System."); }
+
+		void OnConnect(Machine& other) override;
+		void OnDisconnect(Machine& other) override;
+
+	protected:
+		void RenderWindow() override;
+		std::string GetWindowName() override;
+
+	private:
+		StateMachine* machineConnectedTo = nullptr;
+		char inputBuffer[128] = "";
+		const int inputBufferSize = 128;
 	};
 }
