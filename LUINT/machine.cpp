@@ -147,41 +147,11 @@ namespace LUINT::Machines
 		}
 	}
 
-	void ProcessingUnit::RenderMenuItems()
-	{
-		if (ImGui::BeginMenu("Debug"))
-		{
-			ImGui::MenuItem("State Inspector", NULL, &showStateInspector);
-			ImGui::EndMenu();
-		}
-	}
-
-	void ProcessingUnit::RenderChildWindows()
-	{
-		if (showStateInspector)
-		{
-			LUINT::GUI::DrawLuaStateInspector(*this, &showStateInspector);
-		}
-	}
-
-	void ProcessingUnit::RenderWindow()
-	{
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextWrapped("Machine currently powered down.");
-	}
-
 #pragma endregion Rendering
 
 	StateMachine::StateMachine(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)
 	{
 		state = luaL_newstate();
-	}
-
-	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name, std::string _manufacturer) : StateMachine(_session, _name, _manufacturer)
-	{
-		luaopen_string(state);
-		luaopen_base(state);
-		luaopen_table(state);
 	}
 
 	Monitor::Monitor(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)

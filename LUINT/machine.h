@@ -18,7 +18,7 @@ namespace LUINT::Machines
 	struct Machine
 	{
 		Machine(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
-		~Machine();
+		virtual ~Machine();
 		LUINT::UID uid;
 
 		/// Decorations ///
