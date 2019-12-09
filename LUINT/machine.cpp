@@ -91,7 +91,7 @@ namespace LUINT::Machines
 		ImGui::Text("Machine manufacturer: %s", manufacturer.c_str());
 
 		ImGui::TextUnformatted("Description:");
-		ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1), get_description().c_str());
+		ImGui::TextWrapped(get_description().c_str());
 		if (ImGui::CollapsingHeader("Advanced information"))
 		{
 			ImGui::Text("UID: %s", uid.as_string().c_str());
