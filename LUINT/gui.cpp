@@ -127,9 +127,6 @@ void LUINT::GUI::DrawMainMenuBar(LUINT::Data::SessionData& session)
 		if (ImGui::MenuItem("New Monitor", NULL))
 			session.machines.emplace_back(std::make_unique<Monitor>(Monitor(session, std::string("Default monitor"), std::string("aleok studios"))));
 
-		if (ImGui::MenuItem("New Terminal", NULL))
-			session.machines.emplace_back(std::make_unique<Terminal>(Terminal(session, std::string("Default terminal"), std::string("aleok studios"))));
-
 		ImGui::EndMenu();
 	}
 

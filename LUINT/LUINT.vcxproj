@@ -149,7 +149,6 @@
     <ClCompile Include="machine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="processing_unit.cpp" />
-    <ClCompile Include="terminal.cpp" />
     <ClCompile Include="UID.cpp" />
   </ItemGroup>
   <ItemGroup>

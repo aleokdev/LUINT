@@ -83,8 +83,13 @@ namespace LUINT::Machines
 		void RenderChildWindows() override;
 		void RenderMenuItems() override;
 
+		void RenderTerminal();
+
 	private:
 		bool showStateInspector = false;
+		bool showTerminal = false;
+		const int terminalBufferSize = 128;
+		char terminalBuffer[128] = "";
 	};
 
 	struct Monitor : public Machine
@@ -92,24 +97,5 @@ namespace LUINT::Machines
 		Monitor(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
 
 		std::string get_description() override { return std::string("Shows data from a processing unit."); }
-	};
-
-	struct Terminal : public Machine
-	{
-		Terminal(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
-
-		std::string get_description() override { return std::string("Can remotely connect to a processing unit to access it without an Operating System."); }
-
-		void OnConnect(Machine& other) override;
-		void OnDisconnect(Machine& other) override;
-
-	protected:
-		void RenderWindow() override;
-		std::string GetWindowName() override;
-
-	private:
-		StateMachine* machineConnectedTo = nullptr;
-		char inputBuffer[128] = "";
-		const int inputBufferSize = 128;
 	};
 }
