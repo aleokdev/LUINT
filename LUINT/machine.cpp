@@ -4,6 +4,7 @@
 #include "gui.h"
 #include <algorithm>
 #include "hostdata.h"
+#include <iostream>
 
 using namespace LUINT;
 
@@ -121,14 +122,36 @@ namespace LUINT::Machines
 			return;
 		}
 
+		windowPos = ImGui::GetWindowPos();
+		windowSize = ImGui::GetWindowSize();
+
 		if (ImGui::BeginMenuBar())
 		{
 			RenderMenuItems();
-			AddAboutMenuItem();
+			AddDefaultMenuItems();
 			ImGui::EndMenuBar();
 		}
 
 		RenderWindow();
+
+		if (session->connecting != nullptr)
+		{
+			if (ImGui::IsWindowHovered())
+			{
+				ImVec2 min = ImGui::GetWindowPos();
+				ImVec2 max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);
+				ImGui::GetForegroundDrawList()->AddRect(min, max, ImGui::GetColorU32(ImGuiCol_PlotHistogramHovered), 3, 15, 5.0f);
+
+				if (ImGui::IsMouseClicked(0))
+				{
+					// Connect to the other machine
+					session->connections.emplace_back(std::pair<Machine*, Machine*>(session->connecting, this));
+					session->connecting->OnConnect(*this);
+					this->OnConnect(*session->connecting);
+					session->connecting = nullptr;
+				}
+			}
+		}
 
 		ImGui::End();
 	}
@@ -138,8 +161,30 @@ namespace LUINT::Machines
 		ImGui::TextWrapped("This is a default render text -- Override Machine::RenderWindow to have control of what is shown here!");
 	}
 
-	void Machine::AddAboutMenuItem()
+	void Machine::AddDefaultMenuItems()
 	{
+		if (ImGui::BeginMenu("Connections"))
+		{
+			if (session->connecting == this)
+			{
+				if (ImGui::MenuItem("Connect", "Ctrl+LMB", true))
+				{
+					session->connecting = nullptr;
+				}
+			}
+			else if (session->connecting == nullptr)
+			{
+				if (ImGui::MenuItem("Connect", "Ctrl+LMB", false))
+				{
+					session->connecting = this;
+				}
+			}
+			else
+			{
+				ImGui::MenuItem("Connect", "Ctrl+LMB", false, false);
+			}
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("About"))
 		{
 			ImGui::MenuItem("Machine Information", "Ctrl+I", &showMachineInfo);

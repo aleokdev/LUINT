@@ -2,6 +2,7 @@
 #include <string>
 #include "UID.h"
 #include <vector>
+#include <imgui.h> // For ImVec2
 
 struct lua_State;
 struct ImGuiIO;
@@ -27,6 +28,8 @@ namespace LUINT::Machines
 		virtual std::string get_description() { return std::string("Generic LUINT-architectured machine"); }
 		std::vector<Machine*> connections;
 		LUINT::Data::SessionData* session;
+		ImVec2 get_window_pos() { return windowPos; }
+		ImVec2 get_window_size() { return windowSize; }
 
 		/// Actual important stuff ///
 		// Pushes the machine's functions in a table to a Lua stack.
@@ -55,11 +58,14 @@ namespace LUINT::Machines
 		}
 
 	private:
-		void AddAboutMenuItem();
+		void AddDefaultMenuItems();
 		void ShowMachineInfo();
 
 		bool showMachineInfo = false;
 		bool editingName = false;
+
+		ImVec2 windowPos;
+		ImVec2 windowSize;
 	};
 
 	struct StateMachine : public Machine

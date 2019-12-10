@@ -142,3 +142,16 @@ void LUINT::GUI::DrawMainMenuBar(LUINT::Data::SessionData& session)
 	if(showDemo)
 		ImGui::ShowDemoWindow(&showDemo);
 }
+
+void LUINT::GUI::DrawConnections(LUINT::Data::SessionData & session)
+{
+	for (auto& connection : session.connections)
+	{
+		ImVec2 first_pos = connection.first->get_window_pos();
+		ImVec2 first_size = connection.first->get_window_size();
+		ImVec2 second_pos = connection.second->get_window_pos();
+		ImVec2 second_size = connection.second->get_window_size();
+
+		ImGui::GetBackgroundDrawList()->AddLine(first_pos, second_pos, ImGui::GetColorU32(ImGuiCol_ButtonActive), 5.0);
+	}
+}

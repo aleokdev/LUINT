@@ -13,6 +13,8 @@ namespace LUINT
 			using Machine = LUINT::Machines::Machine;
 			std::vector<std::unique_ptr<Machine>> machines;
 			std::vector<std::pair<Machine*, Machine*>> connections;
+
+			Machine* connecting = nullptr;
 		};
 	}
 }

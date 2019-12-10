@@ -69,6 +69,7 @@ int main(void)
 			machine->Render();
 		}
 
+		LUINT::GUI::DrawConnections(session);
 		ImGui::Render();
 
 		{
