@@ -49,6 +49,8 @@ int main(void)
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 	io.IniFilename = NULL; // Don't save windows
 
+	LUINT::Machines::allMachineTypes.eval_for_each<LUINT::Machines::List::encapsulated_test>();
+
 	//LUINT::Data::machines.emplace_back(std::make_unique<LUINT::Machines::Machine>(LUINT::Machines::ProcessingUnit(std::string("Default computer"), std::string("aleok studios"))));
 	LUINT::Data::SessionData session;
 

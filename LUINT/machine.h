@@ -3,6 +3,7 @@
 #include "UID.h"
 #include <vector>
 #include <imgui.h> // For ImVec2
+#include "machine_list.h"
 
 struct lua_State;
 struct ImGuiIO;
@@ -25,7 +26,8 @@ namespace LUINT::Machines
 		/// Decorations ///
 		std::string name;
 		std::string manufacturer;
-		virtual std::string get_description() { return std::string("Generic LUINT-architectured machine"); }
+		[[deprecated("Replaced by static_description, which allows for encapsulated MachineList callbacks.")]]
+		virtual std::string get_description() { return std::string(static_description); }
 		std::vector<Machine*> connections;
 		LUINT::Data::SessionData* session;
 		ImVec2 get_window_pos() { return windowPos; }
@@ -46,6 +48,9 @@ namespace LUINT::Machines
 
 		virtual void OnConnect(Machine& other) {}
 		virtual void OnDisconnect(Machine& other) {}
+
+		inline static const char* static_name = "Machine";
+		inline static const char* static_description = "Generic machine that doesn't do anything by itself.";
 
 	protected:
 		virtual void RenderChildWindows() {};
@@ -75,6 +80,9 @@ namespace LUINT::Machines
 
 		inline lua_State* get_state() { return state; }
 
+		inline static const char* static_name = "State Machine";
+		inline static const char* static_description = "Generic machine that contains a Lua State.";
+
 	protected:
 		lua_State* state;
 	};
@@ -83,7 +91,11 @@ namespace LUINT::Machines
 	{
 		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
 
-		std::string get_description() override { return std::string("Controllable machine that accepts input and can process user-given commands."); }
+		[[deprecated("Replaced by static_description, which allows for encapsulated MachineList callbacks.")]]
+		std::string get_description() override { return std::string(static_description); }
+
+		inline static const char* static_name = "Lua Processing Unit";
+		inline static const char* static_description = "Controllable machine that accepts input and can process user-given commands.";
 
 	protected:
 		void RenderWindow() override;
@@ -104,6 +116,12 @@ namespace LUINT::Machines
 	{
 		Monitor(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
 
-		std::string get_description() override { return std::string("Shows data from a processing unit."); }
+		[[deprecated("Replaced by static_description, which allows for encapsulated MachineList callbacks.")]]
+		std::string get_description() override { return std::string(static_description); }
+
+		inline static const char* static_name = "Monitor";
+		inline static const char* static_description = "Shows data from a processing unit.";
 	};
+
+	inline LUINT::Machines::List::MachineList<ProcessingUnit, Monitor> allMachineTypes;
 }
