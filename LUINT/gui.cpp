@@ -150,7 +150,7 @@ void LUINT::GUI::DrawConnections(LUINT::Data::SessionData & session)
 		ImVec2 first_min = connection.first->get_window_pos();
 		ImVec2 first_max = ImVec2(first_min.x + connection.first->get_window_size().x, first_min.y + connection.first->get_window_size().y);
 		ImVec2 second_min = connection.second->get_window_pos();
-		ImVec2 second_max = ImVec2(second_min.x + connection.first->get_window_size().x, second_min.y + connection.first->get_window_size().y);
+		ImVec2 second_max = ImVec2(second_min.x + connection.second->get_window_size().x, second_min.y + connection.second->get_window_size().y);
 
 		ImVec2 start_point;
 		ImVec2 end_point;

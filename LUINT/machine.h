@@ -63,6 +63,7 @@ namespace LUINT::Machines
 
 		bool showMachineInfo = false;
 		bool editingName = false;
+		bool showCannotConnectToItselfTooltip = false;
 
 		ImVec2 windowPos;
 		ImVec2 windowSize;

@@ -110,7 +110,7 @@ namespace LUINT::Machines
 
 		RenderChildWindows();
 
-		ImGui::SetNextWindowSize(ImVec2(400, 400));
+		ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 
 		char buf[MAX_MACHINENAME_LENGTH + 32];
 		sprintf_s(buf, MAX_MACHINENAME_LENGTH + 32, "%s###m%s", GetWindowName().c_str(), uid.as_string().c_str()); // Use ### to have an unique identifier (even when the machine changes its name)
@@ -144,13 +144,32 @@ namespace LUINT::Machines
 
 				if (ImGui::IsMouseClicked(0))
 				{
-					// Connect to the other machine
-					session->connections.emplace_back(std::pair<Machine*, Machine*>(session->connecting, this));
-					session->connecting->OnConnect(*this);
-					this->OnConnect(*session->connecting);
-					session->connecting = nullptr;
+					if (session->connecting == this)
+					{
+						showCannotConnectToItselfTooltip = true;
+					}
+					else
+					{
+						// Connect to the other machine
+						session->connections.emplace_back(std::pair<Machine*, Machine*>(session->connecting, this));
+						session->connecting->OnConnect(*this);
+						this->OnConnect(*session->connecting);
+						session->connecting = nullptr;
+					}
 				}
+
+				if (ImGui::IsMouseReleased(0))
+					showCannotConnectToItselfTooltip = false;
 			}
+		}
+
+		if (showCannotConnectToItselfTooltip)
+		{
+			ImGui::BeginTooltip();
+			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+			ImGui::TextUnformatted("Cannot connect a machine to itself.");
+			ImGui::PopTextWrapPos();
+			ImGui::EndTooltip();
 		}
 
 		ImGui::End();
