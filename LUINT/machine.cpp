@@ -43,7 +43,7 @@ namespace LUINT::Machines
 			lua_settable(state, -3);
 
 			lua_pushstring(state, "description");
-			lua_pushstring(state, get_description().c_str());
+			lua_pushstring(state, static_description);
 			lua_settable(state, -3);
 
 			lua_pushstring(state, "loaded");
@@ -92,7 +92,7 @@ namespace LUINT::Machines
 		ImGui::Text("Machine manufacturer: %s", manufacturer.c_str());
 
 		ImGui::TextUnformatted("Description:");
-		ImGui::TextWrapped(get_description().c_str());
+		ImGui::TextWrapped(static_description);
 		if (ImGui::CollapsingHeader("Advanced information"))
 		{
 			ImGui::Text("UID: %s", uid.as_string().c_str());

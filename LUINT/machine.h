@@ -26,8 +26,6 @@ namespace LUINT::Machines
 		/// Decorations ///
 		std::string name;
 		std::string manufacturer;
-		[[deprecated("Replaced by static_description, which allows for encapsulated MachineList callbacks.")]]
-		virtual std::string get_description() { return std::string(static_description); }
 		std::vector<Machine*> connections;
 		LUINT::Data::SessionData* session;
 		ImVec2 get_window_pos() { return windowPos; }
@@ -91,9 +89,6 @@ namespace LUINT::Machines
 	{
 		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
 
-		[[deprecated("Replaced by static_description, which allows for encapsulated MachineList callbacks.")]]
-		std::string get_description() override { return std::string(static_description); }
-
 		inline static const char* static_name = "Lua Processing Unit";
 		inline static const char* static_description = "Controllable machine that accepts input and can process user-given commands.";
 
@@ -115,9 +110,6 @@ namespace LUINT::Machines
 	struct Monitor : public Machine
 	{
 		Monitor(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
-
-		[[deprecated("Replaced by static_description, which allows for encapsulated MachineList callbacks.")]]
-		std::string get_description() override { return std::string(static_description); }
 
 		inline static const char* static_name = "Monitor";
 		inline static const char* static_description = "Shows data from a processing unit.";

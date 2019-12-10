@@ -11,7 +11,7 @@ namespace LUINT::Machines::List
 		template<typename MachineType>
 		static void callback()
 		{
-			std::cout << MachineType::static_name();
+			std::cout << MachineType::static_name;
 		}
 	};
 
