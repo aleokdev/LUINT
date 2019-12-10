@@ -147,11 +147,47 @@ void LUINT::GUI::DrawConnections(LUINT::Data::SessionData & session)
 {
 	for (auto& connection : session.connections)
 	{
-		ImVec2 first_pos = connection.first->get_window_pos();
-		ImVec2 first_size = connection.first->get_window_size();
-		ImVec2 second_pos = connection.second->get_window_pos();
-		ImVec2 second_size = connection.second->get_window_size();
+		ImVec2 first_min = connection.first->get_window_pos();
+		ImVec2 first_max = ImVec2(first_min.x + connection.first->get_window_size().x, first_min.y + connection.first->get_window_size().y);
+		ImVec2 second_min = connection.second->get_window_pos();
+		ImVec2 second_max = ImVec2(second_min.x + connection.first->get_window_size().x, second_min.y + connection.first->get_window_size().y);
 
-		ImGui::GetBackgroundDrawList()->AddLine(first_pos, second_pos, ImGui::GetColorU32(ImGuiCol_ButtonActive), 5.0);
+		ImVec2 start_point;
+		ImVec2 end_point;
+		if (second_min.x > first_max.x)
+		{ // second window is to the right of the other one
+			start_point.x = first_max.x;
+			end_point.x = second_min.x;
+		}
+		else if (second_max.x < first_min.x)
+		{ // second window is to the left of the other one
+			start_point.x = first_min.x;
+			end_point.x = second_max.x;
+		}
+		else
+		{ // second and first window are connected by a vertical line
+			// Do a nice vertical line in between the minimum of the second window and the maximum of the first one
+			start_point.x = second_min.x + (first_max.x - second_min.x) / 2;
+			end_point.x = start_point.x;
+		}
+
+		if (second_min.y > first_max.y)
+		{ // second window is to the bottom of the other one
+			start_point.y = first_max.y;
+			end_point.y = second_min.y;
+		}
+		else if (second_max.y < first_min.y)
+		{ // second window is to the top of the other one
+			start_point.y = first_min.y;
+			end_point.y = second_max.y;
+		}
+		else
+		{ // second and first window are connected by a horizontal line
+			// Do a nice horizontal line in between the minimum of the second window and the maximum of the first one
+			start_point.y = second_min.y + (first_max.y - second_min.y) / 2;
+			end_point.y = start_point.y;
+		}
+
+		ImGui::GetBackgroundDrawList()->AddLine(start_point, end_point, ImGui::GetColorU32(ImGuiCol_ButtonActive), 5.0);
 	}
 }
