@@ -46,6 +46,7 @@ int main(void)
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(GLSL_VERSION);
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 	io.IniFilename = NULL; // Don't save windows
 
 	//LUINT::Data::machines.emplace_back(std::make_unique<LUINT::Machines::Machine>(LUINT::Machines::ProcessingUnit(std::string("Default computer"), std::string("aleok studios"))));
