@@ -18,4 +18,5 @@ namespace LUINT::GUI
 	void DrawLuaStateInspector(LUINT::Machines::StateMachine& machine, bool* p_open);
 	void DrawMainMenuBar(LUINT::Data::SessionData& session);
 	void DrawConnections(LUINT::Data::SessionData& session);
+	void DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open);
 }

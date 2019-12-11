@@ -1,6 +1,7 @@
 #pragma once
 #include "machine.h"
 #include <iostream>
+#include <type_traits>
 
 // Template magic begins here
 
@@ -11,7 +12,7 @@ namespace LUINT::Machines::List
 		template<typename MachineType>
 		static void callback()
 		{
-			std::cout << MachineType::static_name;
+			std::cout << MachineType::static_info.name;
 		}
 	};
 
@@ -25,6 +26,12 @@ namespace LUINT::Machines::List
 		void eval_for_each()
 		{
 			eval_next<EncapsulatedCallback, MachineTypes...>();
+		}
+
+		template<typename MachineType>
+		int get_type_index()
+		{
+			return index_next<0, MachineType, MachineTypes...>();
 		}
 
 	private:
@@ -48,6 +55,40 @@ namespace LUINT::Machines::List
 		inline void eval_next()
 		{
 			EncapsulatedCallback::template callback<FinalType>();
+		}
+
+		template<
+			int index,
+			typename MachineTypeToSearchFor,
+			typename cur_MachineType,
+			typename next_MachineType,
+			typename... TypesLeft>
+		inline int index_next()
+		{
+			if (std::is_same <MachineTypeToSearchFor, cur_MachineType>::value)
+			{
+				return index;
+			}
+			else
+			{
+				return index_next<index + 1, MachineTypeToSearchFor, next_MachineType, TypesLeft...>();
+			}
+		}
+
+		template<
+			int index,
+			typename MachineTypeToSearchFor,
+			typename cur_MachineType>
+		inline int index_next()
+		{
+			if (std::is_same <MachineTypeToSearchFor, cur_MachineType>::value)
+			{
+				return index;
+			}
+			else
+			{
+				return -1; // Not found
+			}
 		}
 	};
 }

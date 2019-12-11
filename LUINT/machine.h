@@ -15,8 +15,20 @@ typedef int ImGuiWindowFlags;
 
 #define MAX_MACHINENAME_LENGTH 32
 
+#define _n(c) LUINT::Machines::##c
+#define GENERATE_MACHINEINFO(T, m)					\
+inline static const _n(MachineInfo) static_info = m;	\
+const _n(MachineInfo)& get_info() override { return _n(T)::static_info; }
+
+
 namespace LUINT::Machines
 {
+	struct MachineInfo
+	{
+		const char* name;
+		const char* description;
+	};
+
 	struct Machine
 	{
 		Machine(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
@@ -47,8 +59,10 @@ namespace LUINT::Machines
 		virtual void OnConnect(Machine& other) {}
 		virtual void OnDisconnect(Machine& other) {}
 
-		inline static const char* static_name = "Machine";
-		inline static const char* static_description = "Generic machine that doesn't do anything by itself.";
+		// The MachineInfo of every machine acts as a "static unique identifier" for every machine.
+		inline static const MachineInfo static_info = MachineInfo{ "Machine", "Generic machine that doesn't do anything by itself." };
+
+		virtual const MachineInfo& get_info() = 0;
 
 	protected:
 		virtual void RenderChildWindows() {};
@@ -78,8 +92,7 @@ namespace LUINT::Machines
 
 		inline lua_State* get_state() { return state; }
 
-		inline static const char* static_name = "State Machine";
-		inline static const char* static_description = "Generic machine that contains a Lua State.";
+		GENERATE_MACHINEINFO(StateMachine, (MachineInfo{ "State Machine", "Generic machine that contains a Lua State." }));
 
 	protected:
 		lua_State* state;
@@ -89,8 +102,7 @@ namespace LUINT::Machines
 	{
 		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
 
-		inline static const char* static_name = "Lua Processing Unit";
-		inline static const char* static_description = "Controllable machine that accepts input and can process user-given commands.";
+		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "Controllable machine that accepts input and can process user-given commands." }));
 
 	protected:
 		void RenderWindow() override;
@@ -111,9 +123,9 @@ namespace LUINT::Machines
 	{
 		Monitor(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
 
-		inline static const char* static_name = "Monitor";
-		inline static const char* static_description = "Shows data from a processing unit.";
+		GENERATE_MACHINEINFO(Monitor, (MachineInfo{ "Monitor", "Shows data from a processing unit." }));
 	};
 
-	inline LUINT::Machines::List::MachineList<ProcessingUnit, Monitor> allMachineTypes;
+#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor)
+	inline LUINT::Machines::List::MachineList<MACHINE_TYPES> allMachineTypes;
 }
