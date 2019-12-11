@@ -6,6 +6,7 @@
 #include <sstream>
 #include "machine.h"
 #include "hostdata.h"
+#include "luainterface.h"
 
 void drawLuaStateInspectorTable(lua_State * state)
 {
@@ -234,17 +235,31 @@ void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open
 				ImGui::TextWrapped(encapsulated_getallmachineinfo::info_selected->description);
 				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("Details"))
+			if (ImGui::BeginTabItem("Interface"))
 			{
-				ImGui::Text("ID: 0123456789");
+				ImGui::TextUnformatted("Lua Interface: ");
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(1, 0.9f, 0.6f, 1), encapsulated_getallmachineinfo::info_selected->interface.name);
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.8f, 1));
+				ImGui::TextWrapped(encapsulated_getallmachineinfo::info_selected->interface.description);
+				ImGui::PopStyleColor();
+				ImGui::Separator();
+				for (const LUINT::Machines::LuaInterfaceFunction& function : encapsulated_getallmachineinfo::info_selected->interface.functions)
+				{
+					ImGui::Text("function %s(%s)", function.name);
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.8f, 1));
+					ImGui::Indent();
+					ImGui::TextWrapped(function.description);
+					ImGui::Unindent();
+					ImGui::PopStyleColor();
+				}
+
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
 		}
 		ImGui::EndChild();
-		if (ImGui::Button("Revert")) {}
 		ImGui::SameLine();
-		if (ImGui::Button("Save")) {}
 		ImGui::EndGroup();
 	}
 	ImGui::End();

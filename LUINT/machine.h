@@ -4,6 +4,7 @@
 #include <vector>
 #include <imgui.h> // For ImVec2
 #include "machine_list.h"
+#include "luainterface.h"
 
 struct lua_State;
 struct ImGuiIO;
@@ -27,6 +28,7 @@ namespace LUINT::Machines
 	{
 		const char* name;
 		const char* description;
+		const LuaInterface interface;
 	};
 
 	struct Machine
@@ -102,7 +104,7 @@ namespace LUINT::Machines
 	{
 		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name, std::string _manufacturer);
 
-		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "Controllable machine that accepts input and can process user-given commands." }));
+		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "Controllable machine that accepts input and can process user-given commands.", Interfaces::get_LUINTProcessor() }));
 
 	protected:
 		void RenderWindow() override;
