@@ -203,7 +203,7 @@ struct encapsulated_getallmachineinfo
 		}
 	}
 
-	inline static int selectedIndex = 0;
+	inline static int selectedIndex = -1;
 	inline static const LUINT::Machines::MachineInfo* info_selected = nullptr;
 };
 
@@ -246,6 +246,8 @@ void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open
 			if (ImGui::BeginTabItem("Description"))
 			{
 				ImGui::TextWrapped(encapsulated_getallmachineinfo::info_selected->description);
+				ImGui::Spacing();
+				ImGui::Text("Machine manufacturer: %s", encapsulated_getallmachineinfo::info_selected->manufacturer);
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Interface"))
