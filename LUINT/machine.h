@@ -57,7 +57,6 @@ namespace LUINT::Machines
 
 		// The MachineInfo of every machine acts as a "static unique identifier" for every machine.
 		inline static const MachineInfo static_info = MachineInfo{ "Machine", "aleok studios", "You shouldn't be seeing this." };
-		virtual const LuaInterfaceImpl get_interface_impl() = 0;
 
 		virtual const MachineInfo& get_info() = 0;
 
