@@ -163,7 +163,9 @@
     <ClInclude Include="diskreader.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="hostdata.h" />
+    <ClInclude Include="luainterface.h" />
     <ClInclude Include="machine.h" />
+    <ClInclude Include="machine_list.h" />
     <ClInclude Include="UID.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

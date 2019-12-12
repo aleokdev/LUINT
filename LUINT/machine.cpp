@@ -10,7 +10,7 @@ using namespace LUINT;
 
 namespace LUINT::Machines
 {
-	Machine::Machine(Data::SessionData& _session, std::string _name, std::string _manufacturer) : session(&_session), name(_name), manufacturer(_manufacturer), uid(UID::generate())
+	Machine::Machine(Data::SessionData& _session, std::string _name) : session(&_session), name(_name), uid(UID::generate())
 	{
 	}
 
@@ -26,37 +26,6 @@ namespace LUINT::Machines
 
 			i++;
 		}
-	}
-
-	void Machine::MountToCurrentTable(lua_State * state)
-	{
-		lua_pushstring(state, uid.as_string().c_str());
-		lua_newtable(state);
-
-		{
-			lua_pushstring(state, "name");
-			lua_pushstring(state, name.c_str());
-			lua_settable(state, -3);
-
-			lua_pushstring(state, "manufacturer");
-			lua_pushstring(state, manufacturer.c_str());
-			lua_settable(state, -3);
-
-			lua_pushstring(state, "description");
-			lua_pushstring(state, get_description().c_str());
-			lua_settable(state, -3);
-
-			lua_pushstring(state, "loaded");
-			PushFunctionsToStack(state);
-			lua_settable(state, -3);
-		}
-
-		lua_settable(state, -3);
-	}
-
-	void Machine::UnmountFromCurrentTable(lua_State * state)
-	{
-		// TODO: UnmountFromCurrentTable
 	}
 
 #pragma region Rendering
@@ -89,10 +58,10 @@ namespace LUINT::Machines
 			editingName = ImGui::Button("Change");
 		}
 
-		ImGui::Text("Machine manufacturer: %s", manufacturer.c_str());
+		ImGui::Text("Machine manufacturer: %s", get_info().manufacturer);
 
 		ImGui::TextUnformatted("Description:");
-		ImGui::TextWrapped(get_description().c_str());
+		ImGui::TextWrapped(get_info().description);
 		if (ImGui::CollapsingHeader("Advanced information"))
 		{
 			ImGui::Text("UID: %s", uid.as_string().c_str());
@@ -213,12 +182,12 @@ namespace LUINT::Machines
 
 #pragma endregion Rendering
 
-	StateMachine::StateMachine(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)
+	StateMachine::StateMachine(Data::SessionData& _session, std::string _name) : Machine(_session, _name)
 	{
 		state = luaL_newstate();
 	}
 
-	Monitor::Monitor(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)
+	Monitor::Monitor(Data::SessionData& _session, std::string _name) : Machine(_session, _name)
 	{
 	}
 }

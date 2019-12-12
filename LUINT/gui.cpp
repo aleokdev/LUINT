@@ -6,6 +6,7 @@
 #include <sstream>
 #include "machine.h"
 #include "hostdata.h"
+#include "luainterface.h"
 
 void drawLuaStateInspectorTable(lua_State * state)
 {
@@ -108,6 +109,7 @@ void LUINT::GUI::DrawLuaStateInspector(LUINT::Machines::StateMachine& machine, b
 void LUINT::GUI::DrawMainMenuBar(LUINT::Data::SessionData& session)
 {
 	static bool showDemo = false;
+	static bool showMachineMenu = false;
 	ImGuiIO& io = ImGui::GetIO();
 
 	if (!ImGui::BeginMainMenuBar())
@@ -118,14 +120,7 @@ void LUINT::GUI::DrawMainMenuBar(LUINT::Data::SessionData& session)
 	if (ImGui::BeginMenu("Create"))
 	{
 		using namespace LUINT::Machines;
-		if (ImGui::MenuItem("New Empty Machine", NULL))
-			session.machines.emplace_back(std::make_unique<Machine>(Machine(session, std::string("Default machine"), std::string("aleok studios"))));
-
-		if (ImGui::MenuItem("New Processing Unit", NULL))
-			session.machines.emplace_back(std::make_unique<ProcessingUnit>(ProcessingUnit(session, std::string("Default computer"), std::string("aleok studios"))));
-
-		if (ImGui::MenuItem("New Monitor", NULL))
-			session.machines.emplace_back(std::make_unique<Monitor>(Monitor(session, std::string("Default monitor"), std::string("aleok studios"))));
+		ImGui::MenuItem("New machine...", "Ctrl+N", &showMachineMenu);
 
 		ImGui::EndMenu();
 	}
@@ -141,6 +136,9 @@ void LUINT::GUI::DrawMainMenuBar(LUINT::Data::SessionData& session)
 
 	if(showDemo)
 		ImGui::ShowDemoWindow(&showDemo);
+
+	if (showMachineMenu)
+		DrawMachineMenu(session, &showMachineMenu);
 }
 
 void LUINT::GUI::DrawConnections(LUINT::Data::SessionData & session)
@@ -190,4 +188,126 @@ void LUINT::GUI::DrawConnections(LUINT::Data::SessionData & session)
 
 		ImGui::GetBackgroundDrawList()->AddLine(start_point, end_point, ImGui::GetColorU32(ImGuiCol_ButtonActive), 5.0);
 	}
+}
+
+struct encapsulated_getallmachineinfo
+{
+	template<typename MachineType>
+	static void callback()
+	{
+		int this_index = LUINT::Machines::allMachineTypes.get_type_index<MachineType>();
+		if (ImGui::Selectable(MachineType::static_info.name, selectedIndex == this_index))
+		{
+			selectedIndex = this_index;
+			info_selected = &MachineType::static_info;
+		}
+	}
+
+	inline static int selectedIndex = -1;
+	inline static const LUINT::Machines::MachineInfo* info_selected = nullptr;
+};
+
+struct encapsulated_createmachine
+{
+	template<typename MachineType>
+	static void callback()
+	{
+		if (&MachineType::static_info == machine_to_create)
+			session->machines.emplace_back(std::make_unique<MachineType>(*session, MachineType::static_info.name));
+	}
+
+	inline static LUINT::Data::SessionData* session;
+	inline static const LUINT::Machines::MachineInfo* machine_to_create = nullptr;
+};
+
+void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open)
+{
+	ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("Add machine...", p_open, 0))
+	{
+		// Left panel
+		ImGui::BeginChild("Left panel", ImVec2(150, 0), true);
+		LUINT::Machines::allMachineTypes.eval_for_each<encapsulated_getallmachineinfo>();
+		ImGui::EndChild();
+		ImGui::SameLine();
+
+		// right
+		if (encapsulated_getallmachineinfo::info_selected == nullptr)
+		{
+			ImGui::End();
+			return;
+		}
+		ImGui::BeginGroup();
+		ImGui::BeginChild("Machine Preview", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+		ImGui::Text("%s", encapsulated_getallmachineinfo::info_selected->name);
+		ImGui::Separator();
+		if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
+		{
+			if (ImGui::BeginTabItem("Description"))
+			{
+				ImGui::TextWrapped(encapsulated_getallmachineinfo::info_selected->description);
+				ImGui::Spacing();
+				ImGui::Text("Machine manufacturer: %s", encapsulated_getallmachineinfo::info_selected->manufacturer);
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Interface"))
+			{
+				ImGui::TextUnformatted("Lua Interface: ");
+				ImGui::SameLine();
+				ImGui::TextColored(ImVec4(1, 0.9f, 0.6f, 1), encapsulated_getallmachineinfo::info_selected->interface.name);
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.8f, 1));
+				ImGui::TextWrapped(encapsulated_getallmachineinfo::info_selected->interface.description);
+				ImGui::PopStyleColor();
+				ImGui::Separator();
+				for (const LUINT::Machines::LuaInterfaceFunction& function : encapsulated_getallmachineinfo::info_selected->interface.functions)
+				{
+					ImGui::Text("function %s(", function.name);
+					for (int i = 0; i < function.arguments.size(); i++)
+					{
+						ImGui::SameLine();
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.9f, 0.6f, 1));
+						ImGui::TextUnformatted(function.arguments[i].name);
+						ImGui::PopStyleColor();
+						if (i != function.arguments.size() - 1)
+						{
+							ImGui::SameLine();
+							ImGui::TextUnformatted(",");
+						}
+					}
+					ImGui::SameLine();
+					ImGui::TextUnformatted(")");
+
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.9f, 0.9f, 1));
+					ImGui::TextUnformatted("->");
+					ImGui::SameLine();
+					ImGui::PopStyleColor();
+					ImGui::Indent();
+					ImGui::TextWrapped(function.returns);
+					ImGui::Unindent();
+
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.8f, 1));
+					ImGui::Indent();
+					ImGui::TextWrapped(function.description);
+					ImGui::Unindent();
+					ImGui::PopStyleColor();
+				}
+
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
+		ImGui::EndChild();
+		if (ImGui::Button("Create"))
+		{
+			if (encapsulated_getallmachineinfo::info_selected != nullptr)
+			{
+				encapsulated_createmachine::session = &session;
+				encapsulated_createmachine::machine_to_create = encapsulated_getallmachineinfo::info_selected;
+				LUINT::Machines::allMachineTypes.eval_for_each<encapsulated_createmachine>();
+				*p_open = false;
+			}
+		}
+		ImGui::EndGroup();
+	}
+	ImGui::End();
 }
