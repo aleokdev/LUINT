@@ -16,13 +16,6 @@ namespace LUINT::Machines
 		luaopen_table(state);
 	}
 
-	const LuaInterfaceImpl ProcessingUnit::get_interface_impl()
-	{
-		LuaInterfaceImpl impl;
-		impl.bindings.insert(std::pair<const char*, lua_CFunction> { "ticks", &ProcessingUnit::f_ticks });
-		return impl;
-	}
-
 	void ProcessingUnit::RenderMenuItems()
 	{
 		if (ImGui::BeginMenu("Debug"))
