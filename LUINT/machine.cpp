@@ -10,7 +10,7 @@ using namespace LUINT;
 
 namespace LUINT::Machines
 {
-	Machine::Machine(Data::SessionData& _session, std::string _name, std::string _manufacturer) : session(&_session), name(_name), manufacturer(_manufacturer), uid(UID::generate())
+	Machine::Machine(Data::SessionData& _session, std::string _name) : session(&_session), name(_name), uid(UID::generate())
 	{
 	}
 
@@ -39,7 +39,7 @@ namespace LUINT::Machines
 			lua_settable(state, -3);
 
 			lua_pushstring(state, "manufacturer");
-			lua_pushstring(state, manufacturer.c_str());
+			lua_pushstring(state, get_info().manufacturer);
 			lua_settable(state, -3);
 
 			lua_pushstring(state, "description");
@@ -89,7 +89,7 @@ namespace LUINT::Machines
 			editingName = ImGui::Button("Change");
 		}
 
-		ImGui::Text("Machine manufacturer: %s", manufacturer.c_str());
+		ImGui::Text("Machine manufacturer: %s", get_info().manufacturer);
 
 		ImGui::TextUnformatted("Description:");
 		ImGui::TextWrapped(get_info().description);
@@ -213,12 +213,12 @@ namespace LUINT::Machines
 
 #pragma endregion Rendering
 
-	StateMachine::StateMachine(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)
+	StateMachine::StateMachine(Data::SessionData& _session, std::string _name) : Machine(_session, _name)
 	{
 		state = luaL_newstate();
 	}
 
-	Monitor::Monitor(Data::SessionData& _session, std::string _name, std::string _manufacturer) : Machine(_session, _name, _manufacturer)
+	Monitor::Monitor(Data::SessionData& _session, std::string _name) : Machine(_session, _name)
 	{
 	}
 }

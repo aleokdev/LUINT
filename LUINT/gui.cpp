@@ -213,7 +213,7 @@ struct encapsulated_createmachine
 	static void callback()
 	{
 		if (&MachineType::static_info == machine_to_create)
-			session->machines.emplace_back(std::make_unique<MachineType>(*session, Machine::static_info.name, "test description"));
+			session->machines.emplace_back(std::make_unique<MachineType>(*session, MachineType::static_info.name));
 	}
 
 	inline static LUINT::Data::SessionData* session;

@@ -9,7 +9,7 @@
 
 namespace LUINT::Machines
 {
-	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name, std::string _manufacturer) : StateMachine(_session, _name, _manufacturer)
+	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name) : StateMachine(_session, _name)
 	{
 		luaopen_string(state);
 		luaopen_base(state);
