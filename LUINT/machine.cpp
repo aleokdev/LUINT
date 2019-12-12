@@ -28,37 +28,6 @@ namespace LUINT::Machines
 		}
 	}
 
-	void Machine::MountToCurrentTable(lua_State * state)
-	{
-		lua_pushstring(state, uid.as_string().c_str());
-		lua_newtable(state);
-
-		{
-			lua_pushstring(state, "name");
-			lua_pushstring(state, name.c_str());
-			lua_settable(state, -3);
-
-			lua_pushstring(state, "manufacturer");
-			lua_pushstring(state, get_info().manufacturer);
-			lua_settable(state, -3);
-
-			lua_pushstring(state, "description");
-			lua_pushstring(state, get_info().description);
-			lua_settable(state, -3);
-
-			lua_pushstring(state, "loaded");
-			PushFunctionsToStack(state);
-			lua_settable(state, -3);
-		}
-
-		lua_settable(state, -3);
-	}
-
-	void Machine::UnmountFromCurrentTable(lua_State * state)
-	{
-		// TODO: UnmountFromCurrentTable
-	}
-
 #pragma region Rendering
 
 	void Machine::ShowMachineInfo()

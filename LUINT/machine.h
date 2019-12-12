@@ -49,12 +49,6 @@ namespace LUINT::Machines
 		// Pushes the machine's functions in a table to a Lua stack.
 		virtual void PushFunctionsToStack(lua_State* state) {}
 
-		// Mounts the machine data to the current active object in a Lua stack.
-		void MountToCurrentTable(lua_State* state);
-
-		// Unmounts the machine data from the current active object in a Lua stack.
-		void UnmountFromCurrentTable(lua_State* state);
-
 		// Renders this machine as a window in the GLFW window.
 		void Render();
 
