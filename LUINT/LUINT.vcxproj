@@ -166,6 +166,7 @@
     <ClInclude Include="luainterface.h" />
     <ClInclude Include="machine.h" />
     <ClInclude Include="machine_list.h" />
+    <ClInclude Include="sol2\sol.hpp" />
     <ClInclude Include="UID.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
