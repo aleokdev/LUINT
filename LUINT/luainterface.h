@@ -1,5 +1,9 @@
 #pragma once
 #include <vector>
+#include <unordered_map>
+
+struct lua_State;
+typedef int(*lua_CFunction) (lua_State *L);
 
 namespace LUINT::Machines
 {
@@ -26,6 +30,12 @@ namespace LUINT::Machines
 		const char* name;
 		const char* description;
 		std::vector<LuaInterfaceFunction> functions;
+	};
+
+	// Defines an implementation (method bindings for every function in LuaInterface)
+	struct LuaInterfaceImpl
+	{
+		std::unordered_map<const char*, lua_CFunction> bindings;
 	};
 
 	namespace Interfaces

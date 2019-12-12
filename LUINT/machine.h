@@ -57,6 +57,7 @@ namespace LUINT::Machines
 
 		// The MachineInfo of every machine acts as a "static unique identifier" for every machine.
 		inline static const MachineInfo static_info = MachineInfo{ "Machine", "aleok studios", "You shouldn't be seeing this." };
+		virtual const LuaInterfaceImpl get_interface_impl() = 0;
 
 		virtual const MachineInfo& get_info() = 0;
 
@@ -98,6 +99,8 @@ namespace LUINT::Machines
 	{
 		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name);
 
+		const LuaInterfaceImpl get_interface_impl() override;
+
 		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "aleok studios", "Controllable machine that accepts input and can process user-given commands.", Interfaces::get_LUINTProcessor() }));
 
 	protected:
@@ -113,6 +116,13 @@ namespace LUINT::Machines
 		const int terminalBufferSize = 128;
 		char terminalBuffer[128] = "";
 		std::vector<std::string> terminalLog;
+
+		static int f_ticks(lua_State* state);
+		int f_get_info(lua_State* state);
+		int f_shutdown(lua_State* state);
+		int f_reboot(lua_State* state);
+		int f_push_signal(lua_State* state);
+		int f_pull_signal(lua_State* state);
 	};
 
 	struct Monitor : public Machine
