@@ -207,6 +207,19 @@ struct encapsulated_getallmachineinfo
 	inline static const LUINT::Machines::MachineInfo* info_selected = nullptr;
 };
 
+struct encapsulated_createmachine
+{
+	template<typename MachineType>
+	static void callback()
+	{
+		if (&MachineType::static_info == machine_to_create)
+			session->machines.emplace_back(std::make_unique<MachineType>(*session, Machine::static_info.name, "test description"));
+	}
+
+	inline static LUINT::Data::SessionData* session;
+	inline static const LUINT::Machines::MachineInfo* machine_to_create = nullptr;
+};
+
 void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open)
 {
 	ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
@@ -246,7 +259,30 @@ void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open
 				ImGui::Separator();
 				for (const LUINT::Machines::LuaInterfaceFunction& function : encapsulated_getallmachineinfo::info_selected->interface.functions)
 				{
-					ImGui::Text("function %s(%s)", function.name);
+					ImGui::Text("function %s(", function.name);
+					for (int i = 0; i < function.arguments.size(); i++)
+					{
+						ImGui::SameLine();
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.9f, 0.6f, 1));
+						ImGui::TextUnformatted(function.arguments[i].name);
+						ImGui::PopStyleColor();
+						if (i != function.arguments.size() - 1)
+						{
+							ImGui::SameLine();
+							ImGui::TextUnformatted(",");
+						}
+					}
+					ImGui::SameLine();
+					ImGui::TextUnformatted(")");
+
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.9f, 0.9f, 1));
+					ImGui::TextUnformatted("->");
+					ImGui::SameLine();
+					ImGui::PopStyleColor();
+					ImGui::Indent();
+					ImGui::TextWrapped(function.returns);
+					ImGui::Unindent();
+
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.8f, 1));
 					ImGui::Indent();
 					ImGui::TextWrapped(function.description);
@@ -259,7 +295,16 @@ void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open
 			ImGui::EndTabBar();
 		}
 		ImGui::EndChild();
-		ImGui::SameLine();
+		if (ImGui::Button("Create"))
+		{
+			if (encapsulated_getallmachineinfo::info_selected != nullptr)
+			{
+				encapsulated_createmachine::session = &session;
+				encapsulated_createmachine::machine_to_create = encapsulated_getallmachineinfo::info_selected;
+				LUINT::Machines::allMachineTypes.eval_for_each<encapsulated_createmachine>();
+				*p_open = false;
+			}
+		}
 		ImGui::EndGroup();
 	}
 	ImGui::End();
