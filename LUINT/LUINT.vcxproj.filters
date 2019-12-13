@@ -56,8 +56,5 @@
     <ClInclude Include="luainterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sol2\sol.hpp">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

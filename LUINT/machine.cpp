@@ -190,4 +190,25 @@ namespace LUINT::Machines
 	Monitor::Monitor(Data::SessionData& _session, std::string _name) : Machine(_session, _name)
 	{
 	}
+
+	void LED::ImplementLua(lua_State * state, sol::proxy<sol::table, std::string> proxy_path)
+	{
+		sol::state_view lua(state);
+
+		struct lua_impl
+		{
+			void do_thing()
+			{
+				std::cout << "thing";
+			}
+		};
+
+		lua[proxy_path].set_function("set_state", &lua_impl::do_thing, lua_impl{}); //Why doesn't this compile???
+		//lua[proxy_path].set_function("get_state", &LED::f_get_state, *this);
+	}
+
+	void LED::RenderWindow()
+	{
+		ImGui::Text(turnedOn ? "On" : "Off");
+	}
 }

@@ -32,12 +32,6 @@ namespace LUINT::Machines
 		std::vector<LuaInterfaceFunction> functions;
 	};
 
-	// Defines an implementation (method bindings for every function in LuaInterface)
-	struct LuaInterfaceImpl
-	{
-		std::unordered_map<const char*, lua_CFunction> bindings;
-	};
-
 	namespace Interfaces
 	{
 		inline LuaInterface get_LUINTProcessor()
@@ -87,6 +81,33 @@ namespace LUINT::Machines
 					"pull_signal",
 					"Pulls a signal from the signal queue. Older signals will be processed first.",
 					"signal_name, args..."
+				}
+			};
+
+			return result;
+		}
+
+		inline LuaInterface get_SimpleOutputDevice()
+		{
+			LuaInterface result;
+
+			result.name = "Simple Output Device";
+			result.description = "Contains two simple functions: One for setting the state of the machine and "
+				"another one for getting the state that was set before. Used for simple machines such as LEDs.";
+			result.functions = std::vector<LuaInterfaceFunction>
+			{
+				{
+					"set_state",
+					"Sets the state of the machine. The value type used is normally obvious: For example, if the machine "
+					"being controlled is a LED, it'll be a boolean, and if it is a digit display, it'll be an integer.",
+					"nil",
+					std::vector<LuaInterfaceFunction::Argument> { {"state"} }
+				},
+				{
+					"get_state",
+					"Gets the current state of the machine. If not previously set with set_state, will return the default "
+					"state. The type returned is the same used in set_state.",
+					"state"
 				}
 			};
 

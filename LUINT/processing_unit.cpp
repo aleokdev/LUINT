@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include "sol2/sol.hpp"
 
 namespace LUINT::Machines
 {
@@ -14,6 +15,17 @@ namespace LUINT::Machines
 		luaopen_string(state);
 		luaopen_base(state);
 		luaopen_table(state);
+	}
+
+	void ProcessingUnit::OnConnect(Machine & other)
+	{
+		sol::state_view lua(state);
+		char uid[32];
+		other.ImplementLua(state, lua[sol::create_if_nil]["computer"][sol::create_if_nil]["connections"][sol::create_if_nil][other.uid.as_string()]);
+	}
+
+	void ProcessingUnit::OnDisconnect(Machine & other)
+	{
 	}
 
 	void ProcessingUnit::RenderMenuItems()
@@ -43,6 +55,7 @@ namespace LUINT::Machines
 	{
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextWrapped("Machine currently powered down.");
+		ticks++;
 	}
 
 	void ProcessingUnit::RenderTerminal()
