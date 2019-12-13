@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "hostdata.h"
 #include <iostream>
+#include "sol.hpp"
 
 using namespace LUINT;
 
