@@ -5,7 +5,7 @@
 #include <imgui.h> // For ImVec2
 #include "machine_list.h"
 #include "luainterface.h"
-#include "sol2/sol.hpp"
+#include "sol.hpp"
 
 struct lua_State;
 struct ImGuiIO;
@@ -54,7 +54,7 @@ namespace LUINT::Machines
 		virtual void OnConnect(Machine& other) {}
 		virtual void OnDisconnect(Machine& other) {}
 
-		virtual void ImplementLua(lua_State* state, sol::proxy<sol::table, std::string> proxy_path) {};
+		virtual void ImplementLua(lua_State* state, sol::table&& proxy_table) {};
 
 		// The MachineInfo of every machine acts as a "static unique identifier" for every machine.
 		inline static const MachineInfo static_info = MachineInfo{ "Machine", "aleok studios", "You shouldn't be seeing this." };
@@ -118,6 +118,7 @@ namespace LUINT::Machines
 		char terminalBuffer[128] = "";
 		std::vector<std::string> terminalLog;
 		int ticks = 0;
+		sol::basic_table_core<true, sol::reference>* impl_table;
 
 		inline int f_ticks()
 		{
@@ -138,7 +139,15 @@ namespace LUINT::Machines
 
 		GENERATE_MACHINEINFO(LED, (MachineInfo{ "LED", "aleok studios", "Simple machine that can turn on or off.", Interfaces::get_SimpleOutputDevice() }));
 
-		void ImplementLua(lua_State* state, sol::proxy<sol::table, std::string> proxy_path) override;
+		void ImplementLua(lua_State* state, sol::table&& proxy_table) override;
+
+		struct lua_impl
+		{
+			void do_thing()
+			{
+				std::cout << "thing";
+			}
+		};
 
 		inline void f_set_state(bool new_state)
 		{
@@ -157,6 +166,6 @@ namespace LUINT::Machines
 		bool turnedOn = false;
 	};
 
-#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor)
+#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor), _n(LED)
 	inline LUINT::Machines::List::MachineList<MACHINE_TYPES> allMachineTypes;
 }

@@ -5,7 +5,6 @@
 #include <algorithm>
 #include "hostdata.h"
 #include <iostream>
-#include "sol.hpp"
 
 using namespace LUINT;
 
@@ -192,20 +191,17 @@ namespace LUINT::Machines
 	{
 	}
 
-	void LED::ImplementLua(lua_State * state, sol::proxy<sol::table, std::string> proxy_path)
+	void thing()
+	{
+		std::cout << "works";
+	}
+
+	void LED::ImplementLua(lua_State * state, sol::table&& proxy_table)
 	{
 		sol::state_view lua(state);
 
-		struct lua_impl
-		{
-			void do_thing()
-			{
-				std::cout << "thing";
-			}
-		};
-
-		lua[proxy_path].set_function("set_state", &lua_impl::do_thing, lua_impl{}); //Why doesn't this compile???
-		//lua[proxy_path].set_function("get_state", &LED::f_get_state, *this);
+		proxy_table.set_function("set_state", []() {std::cout << "works"; }); //Why doesn't this compile???
+		//lua.set_function("get_state", &thing);
 	}
 
 	void LED::RenderWindow()

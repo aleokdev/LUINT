@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "sol2/sol.hpp"
+#include "sol.hpp"
 
 namespace LUINT::Machines
 {
@@ -15,13 +15,31 @@ namespace LUINT::Machines
 		luaopen_string(state);
 		luaopen_base(state);
 		luaopen_table(state);
+
+		sol::state_view lua(state);
+		lua[sol::create_if_nil]["computer"]["connections"] = lua.create_table();
 	}
 
 	void ProcessingUnit::OnConnect(Machine & other)
 	{
 		sol::state_view lua(state);
 		char uid[32];
-		other.ImplementLua(state, lua[sol::create_if_nil]["computer"][sol::create_if_nil]["connections"][sol::create_if_nil][other.uid.as_string()]);
+		std::cout << "adding\n";
+		std::string otherUID = other.uid.as_string("%08x");
+		lua[sol::create_if_nil]["computer"]["connections"][otherUID] = lua.create_table_with(
+			"uid", otherUID,
+			"name", other.name,
+			"type", lua.create_table_with(
+				"name", other.get_info().name,
+				"description", other.get_info().description,
+				"manufacturer", other.get_info().manufacturer,
+				"interface", lua.create_table_with(
+					"name", other.get_info().interface.name,
+					"description", other.get_info().interface.description
+				)
+			)
+		);
+		other.ImplementLua(state, lua[sol::create_if_nil]["computer"]["connections"][otherUID]);
 	}
 
 	void ProcessingUnit::OnDisconnect(Machine & other)
