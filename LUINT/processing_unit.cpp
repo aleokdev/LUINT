@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include "sol.hpp"
 
 namespace LUINT::Machines
 {
@@ -14,6 +15,43 @@ namespace LUINT::Machines
 		luaopen_string(state);
 		luaopen_base(state);
 		luaopen_table(state);
+
+		sol::state_view lua(state);
+		lua[sol::create_if_nil]["computer"]["connections"] = lua.create_table();
+		//lua["computer"].set_function("pull");
+	}
+
+	void ProcessingUnit::OnConnect(Machine & other)
+	{
+		sol::state_view lua(state);
+		char uid[32];
+		std::cout << "adding\n";
+		std::string otherUID = other.uid.as_string("%08x");
+		lua[sol::create_if_nil]["computer"]["connections"][otherUID] = lua.create_table_with(
+			"uid", otherUID,
+			"name", other.name,
+			"type", lua.create_table_with(
+				"name", other.get_info().name,
+				"description", other.get_info().description,
+				"manufacturer", other.get_info().manufacturer,
+				"interface", lua.create_table_with(
+					"name", other.get_info().interface.name,
+					"description", other.get_info().interface.description
+				)
+			)
+		);
+		other.ImplementLua(state, lua[sol::create_if_nil]["computer"]["connections"][otherUID]);
+
+		PushEvent("on_connect", std::vector<sol::lua_value>{sol::lua_value(lua, otherUID)});
+	}
+
+	void ProcessingUnit::OnDisconnect(Machine & other)
+	{
+	}
+
+	void ProcessingUnit::PushEvent(std::string name, std::vector<sol::lua_value> parameters)
+	{
+
 	}
 
 	void ProcessingUnit::RenderMenuItems()
@@ -43,6 +81,7 @@ namespace LUINT::Machines
 	{
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextWrapped("Machine currently powered down.");
+		ticks++;
 	}
 
 	void ProcessingUnit::RenderTerminal()
@@ -108,17 +147,24 @@ namespace LUINT::Machines
 
 						if (result == nullptr)
 						{
-							// Result is not number or string, so get address instead
-							// TODO: Merge with NUINT::GUI::drawLuaStateInspectorTable's implementation
-							const void* address = lua_topointer(state, -1);
-							std::ostringstream addressStr;
-							std::string final_string;
-							addressStr << address;
+							if (lua_isboolean(state, -1))
+							{
+								terminalLog.emplace_back(std::string(lua_toboolean(state, -1) ? "true" : "false"));
+							}
+							else
+							{
+								// Result is not number, bool or string, so get address instead
+								// TODO: Merge with NUINT::GUI::drawLuaStateInspectorTable's implementation
+								const void* address = lua_topointer(state, -1);
+								std::ostringstream addressStr;
+								std::string final_string;
+								addressStr << address;
 
-							final_string.append("<Data @ 0x");
-							final_string.append(addressStr.str());
-							final_string.append(">");
-							terminalLog.emplace_back(std::move(final_string));
+								final_string.append("<Data @ 0x");
+								final_string.append(addressStr.str());
+								final_string.append(">");
+								terminalLog.emplace_back(std::move(final_string));
+							}
 						}
 						else if (strlen(result) == 0) // result is empty
 						{

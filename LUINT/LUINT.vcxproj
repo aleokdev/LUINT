@@ -71,7 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <IncludePath>..\glad\include;..\imgui;$(IncludePath)</IncludePath>
+    <IncludePath>..\glad\include;..\imgui;..\sol2;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ReferencePath>$(ReferencePath)</ReferencePath>
@@ -92,6 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>C:\Users\alexp\Documents\Programming Projects\LUINT\Debug\glad.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -161,12 +162,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="diskreader.h" />
+    <ClInclude Include="forward.hpp" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="hostdata.h" />
     <ClInclude Include="luainterface.h" />
     <ClInclude Include="machine.h" />
     <ClInclude Include="machine_list.h" />
-    <ClInclude Include="sol2\sol.hpp" />
+    <ClInclude Include="sol.hpp" />
     <ClInclude Include="UID.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

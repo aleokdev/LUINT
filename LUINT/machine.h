@@ -5,6 +5,7 @@
 #include <imgui.h> // For ImVec2
 #include "machine_list.h"
 #include "luainterface.h"
+#include "sol.hpp"
 
 struct lua_State;
 struct ImGuiIO;
@@ -46,14 +47,14 @@ namespace LUINT::Machines
 		ImVec2 get_window_size() { return windowSize; }
 
 		/// Actual important stuff ///
-		// Pushes the machine's functions in a table to a Lua stack.
-		virtual void PushFunctionsToStack(lua_State* state) {}
 
 		// Renders this machine as a window in the GLFW window.
 		void Render();
 
 		virtual void OnConnect(Machine& other) {}
 		virtual void OnDisconnect(Machine& other) {}
+
+		virtual void ImplementLua(lua_State* state, sol::table&& proxy_table) {};
 
 		// The MachineInfo of every machine acts as a "static unique identifier" for every machine.
 		inline static const MachineInfo static_info = MachineInfo{ "Machine", "aleok studios", "You shouldn't be seeing this." };
@@ -98,9 +99,13 @@ namespace LUINT::Machines
 	{
 		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name);
 
+		void OnConnect(Machine& other) override;
+		void OnDisconnect(Machine& other) override;
+
+		void PushEvent(std::string name, std::vector<sol::lua_value> parameters);
 
 		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "aleok studios", "Controllable machine that accepts input and can process user-given commands.", Interfaces::get_LUINTProcessor() }));
-
+		
 	protected:
 		void RenderWindow() override;
 		void RenderChildWindows() override;
@@ -114,6 +119,13 @@ namespace LUINT::Machines
 		const int terminalBufferSize = 128;
 		char terminalBuffer[128] = "";
 		std::vector<std::string> terminalLog;
+		int ticks = 0;
+		sol::basic_table_core<true, sol::reference>* impl_table;
+
+		inline int f_ticks()
+		{
+			return ticks;
+		};
 	};
 
 	struct Monitor : public Machine
@@ -123,6 +135,39 @@ namespace LUINT::Machines
 		GENERATE_MACHINEINFO(Monitor, (MachineInfo{ "Monitor", "aleok studios", "Shows data from a processing unit." }));
 	};
 
-#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor)
+	struct LED : public Machine
+	{
+		LED(LUINT::Data::SessionData& _session, std::string _name) : Machine(_session, _name) {};
+
+		GENERATE_MACHINEINFO(LED, (MachineInfo{ "LED", "aleok studios", "Simple machine that can turn on or off.", Interfaces::get_SimpleOutputDevice() }));
+
+		void ImplementLua(lua_State* state, sol::table&& proxy_table) override;
+
+		struct lua_impl
+		{
+			void do_thing()
+			{
+				std::cout << "thing";
+			}
+		};
+
+		inline void f_set_state(bool new_state)
+		{
+			turnedOn = new_state;
+		}
+
+		inline bool f_get_state()
+		{
+			return turnedOn;
+		}
+
+	protected:
+		void RenderWindow() override;
+
+	private:
+		bool turnedOn = false;
+	};
+
+#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor), _n(LED)
 	inline LUINT::Machines::List::MachineList<MACHINE_TYPES> allMachineTypes;
 }
