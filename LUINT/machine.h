@@ -102,6 +102,8 @@ namespace LUINT::Machines
 		void OnConnect(Machine& other) override;
 		void OnDisconnect(Machine& other) override;
 
+		void PushEvent(std::string name, std::vector<sol::lua_value> parameters);
+
 		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "aleok studios", "Controllable machine that accepts input and can process user-given commands.", Interfaces::get_LUINTProcessor() }));
 		
 	protected:

@@ -200,8 +200,8 @@ namespace LUINT::Machines
 	{
 		sol::state_view lua(state);
 
-		proxy_table.set_function("set_state", []() {std::cout << "works"; }); //Why doesn't this compile???
-		//lua.set_function("get_state", &thing);
+		proxy_table.set_function("set_state", &LED::f_set_state, this); //Why doesn't this compile???
+		proxy_table.set_function("get_state", &LED::f_get_state, this);
 	}
 
 	void LED::RenderWindow()

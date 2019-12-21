@@ -18,6 +18,7 @@ namespace LUINT::Machines
 
 		sol::state_view lua(state);
 		lua[sol::create_if_nil]["computer"]["connections"] = lua.create_table();
+		//lua["computer"].set_function("pull");
 	}
 
 	void ProcessingUnit::OnConnect(Machine & other)
@@ -40,10 +41,17 @@ namespace LUINT::Machines
 			)
 		);
 		other.ImplementLua(state, lua[sol::create_if_nil]["computer"]["connections"][otherUID]);
+
+		PushEvent("on_connect", std::vector<sol::lua_value>{sol::lua_value(lua, otherUID)});
 	}
 
 	void ProcessingUnit::OnDisconnect(Machine & other)
 	{
+	}
+
+	void ProcessingUnit::PushEvent(std::string name, std::vector<sol::lua_value> parameters)
+	{
+
 	}
 
 	void ProcessingUnit::RenderMenuItems()
@@ -139,17 +147,24 @@ namespace LUINT::Machines
 
 						if (result == nullptr)
 						{
-							// Result is not number or string, so get address instead
-							// TODO: Merge with NUINT::GUI::drawLuaStateInspectorTable's implementation
-							const void* address = lua_topointer(state, -1);
-							std::ostringstream addressStr;
-							std::string final_string;
-							addressStr << address;
+							if (lua_isboolean(state, -1))
+							{
+								terminalLog.emplace_back(std::string(lua_toboolean(state, -1) ? "true" : "false"));
+							}
+							else
+							{
+								// Result is not number, bool or string, so get address instead
+								// TODO: Merge with NUINT::GUI::drawLuaStateInspectorTable's implementation
+								const void* address = lua_topointer(state, -1);
+								std::ostringstream addressStr;
+								std::string final_string;
+								addressStr << address;
 
-							final_string.append("<Data @ 0x");
-							final_string.append(addressStr.str());
-							final_string.append(">");
-							terminalLog.emplace_back(std::move(final_string));
+								final_string.append("<Data @ 0x");
+								final_string.append(addressStr.str());
+								final_string.append(">");
+								terminalLog.emplace_back(std::move(final_string));
+							}
 						}
 						else if (strlen(result) == 0) // result is empty
 						{
