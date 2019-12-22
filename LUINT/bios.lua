@@ -13,7 +13,7 @@ function main()
 	local function pull()
 		repeat
 			coroutine.yield()
-		until latest_event[0] ~= "tick"
+		until(latest_event[0] ~= "tick")
 		return table.unpack(latest_event)
 	end
 	local function pull_delay()
@@ -27,7 +27,7 @@ function main()
 		print("Press Enter to apply and reboot")
 		repeat
 			local e, key = pull()
-		until e ~= "key_press" and key ~= 50 -- todo: replace 50 by actual enter key id
+		while e ~= "key_press" and key ~= 50 -- todo: replace 50 by actual enter key id
 		computer.reboot()
 	end
 
