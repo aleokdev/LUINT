@@ -80,7 +80,8 @@ namespace LUINT::Machines
 		lua[sol::create_if_nil]["latest_event"] = lua.create_table_with(1, name, 2, sender.as_string("%08x").c_str(), 3, parameters);
 		auto result = main_coroutine(); // Continue executing the main coroutine
 
-		//std::cout << "Main coroutine is " << (main_coroutine.runnable()? "runnable" : "not runnable") << std::endl;
+		if(!main_coroutine.runnable())
+			std::cout << "Main coroutine has finished executing." << std::endl;
 		if (!result.valid())
 		{
 			sol::error err = result;
