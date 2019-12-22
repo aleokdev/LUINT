@@ -74,6 +74,8 @@ namespace LUINT::Machines
 			return name;
 		}
 
+		virtual ImGuiWindowFlags GetWindowFlags() { return ImGuiWindowFlags_MenuBar; }
+
 	private:
 		void AddDefaultMenuItems();
 		void ShowMachineInfo();

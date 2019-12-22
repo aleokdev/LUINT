@@ -145,6 +145,7 @@
   <ItemGroup>
     <None Include="bios.lua" />
     <None Include="event_test_bios.lua" />
+    <None Include="monitor_test_bios.lua" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +154,7 @@
     <ClCompile Include="LED.cpp" />
     <ClCompile Include="machine.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ptm_monitor.cpp" />
     <ClCompile Include="network.cpp" />
     <ClCompile Include="processing_unit.cpp" />
     <ClCompile Include="UID.cpp" />
@@ -177,7 +179,7 @@
     <ClInclude Include="luainterface.h" />
     <ClInclude Include="machine.h" />
     <ClInclude Include="machine_list.h" />
-    <ClInclude Include="monitor.h" />
+    <ClInclude Include="ptm_monitor.h" />
     <ClInclude Include="network.h" />
     <ClInclude Include="observable.h" />
     <ClInclude Include="processing_unit.h" />

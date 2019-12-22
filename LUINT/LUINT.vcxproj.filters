@@ -25,6 +25,9 @@
     <None Include="event_test_bios.lua">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="monitor_test_bios.lua">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -49,6 +52,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ptm_monitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,9 +95,6 @@
     <ClInclude Include="processing_unit.h">
       <Filter>Header Files\machines</Filter>
     </ClInclude>
-    <ClInclude Include="monitor.h">
-      <Filter>Header Files\machines</Filter>
-    </ClInclude>
     <ClInclude Include="keyboard.h">
       <Filter>Header Files\machines</Filter>
     </ClInclude>
@@ -105,6 +108,9 @@
       <Filter>Header Files\machines</Filter>
     </ClInclude>
     <ClInclude Include="all_machines.h">
+      <Filter>Header Files\machines</Filter>
+    </ClInclude>
+    <ClInclude Include="ptm_monitor.h">
       <Filter>Header Files\machines</Filter>
     </ClInclude>
   </ItemGroup>

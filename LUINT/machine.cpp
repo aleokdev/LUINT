@@ -80,12 +80,10 @@ namespace LUINT::Machines
 
 		RenderChildWindows();
 
-		ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-
 		char buf[MAX_MACHINENAME_LENGTH + 32];
 		sprintf_s(buf, MAX_MACHINENAME_LENGTH + 32, "%s###m%s", GetWindowName().c_str(), uid.as_string().c_str()); // Use ### to have an unique identifier (even when the machine changes its name)
 
-		if (!ImGui::Begin(buf, nullptr, ImGuiWindowFlags_MenuBar))
+		if (!ImGui::Begin(buf, nullptr, GetWindowFlags()))
 		{
 			// Early out if the window is collapsed, as an optimization.
 			ImGui::End();

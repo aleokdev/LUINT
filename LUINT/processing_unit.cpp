@@ -28,7 +28,7 @@ namespace LUINT::Machines
 		
 		// TODO: Replace #include with #embed_str, when MSVC supports it
 		auto result = lua.do_string(
-#include "event_test_bios.lua"
+#include "monitor_test_bios.lua"
 );
 		
 		if (!result.valid())
