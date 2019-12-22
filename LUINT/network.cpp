@@ -4,11 +4,6 @@
 
 namespace LUINT
 {
-	void Network::SendEvent(std::string name, sol::table args)
-	{
-		OnEvent(name, args);
-	}
-
 	void Network::add_machine(Machines::Machine* m)
 	{
 		for (auto& machine : machines)

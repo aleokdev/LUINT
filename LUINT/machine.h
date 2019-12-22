@@ -95,7 +95,7 @@ namespace LUINT::Machines
 		virtual void Startup() = 0;
 		virtual void Shutdown() = 0;
 
-		virtual void PushEvent(std::string name, sol::table&& parameters) = 0;
+		virtual void PushEvent(std::string name, UID sender, sol::lua_value parameters) = 0;
 
 		GENERATE_MACHINEINFO(StateMachine, (MachineInfo{ "State Machine", "aleok studios", "Generic machine that contains a Lua State." }));
 
@@ -113,7 +113,7 @@ namespace LUINT::Machines
 		void OnConnect(Machine& other) override;
 		void OnDisconnect(Machine& other) override;
 
-		void PushEvent(std::string name, sol::table&& parameters) override;
+		void PushEvent(std::string name, UID sender, sol::lua_value parameters) override;
 
 		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "aleok studios", "Controllable machine that accepts input and can process user-given commands.", Interfaces::get_LUINTProcessor() }));
 		
@@ -152,10 +152,23 @@ namespace LUINT::Machines
 	{
 		Keyboard(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
 
-		GENERATE_MACHINEINFO(Keyboard, (MachineInfo{ "Keyboard", "aleok studios", "Simple machine that sends key_pressed and key_released events to state machines connected.", Interfaces::get_SimpleOutputDevice() }));
+		GENERATE_MACHINEINFO(Keyboard, (MachineInfo{ "Keyboard", "aleok studios", "Simple machine that sends key_pressed and key_released events to state machines connected.", Interfaces::get_Keyboard() }));
 
 	protected:
 		void RenderWindow() override;
+	};
+
+	struct Button : public Machine
+	{
+		Button(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
+
+		GENERATE_MACHINEINFO(Button, (MachineInfo{ "Button", "aleok studios", "A button that sends button_pressed and button_released events.", Interfaces::get_Button() }));
+
+	protected:
+		void RenderWindow() override;
+
+	private:
+		bool pressed = false;
 	};
 
 	struct LED : public Machine
@@ -191,6 +204,6 @@ namespace LUINT::Machines
 		bool turnedOn = false;
 	};
 
-#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor), _n(LED), _n(Keyboard)
+#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor), _n(LED), _n(Keyboard), _n(Button)
 	inline LUINT::Machines::List::MachineList<MACHINE_TYPES> allMachineTypes;
 }

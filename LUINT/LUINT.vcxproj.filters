@@ -19,6 +19,9 @@
     <None Include="bios.lua">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="event_test_bios.lua">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
