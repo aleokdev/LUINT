@@ -1,4 +1,4 @@
-R"( -- BIOS STARTS HERE \""
+R"( -- BIOS STARTS HERE "
 
 -- This is the default computer BIOS used in every Processing Unit created.
 -- The BIOS of a State Machine is a small program that is executed on startup. Normally, it defines some critical
@@ -13,7 +13,8 @@ function main()
 	local function pull()
 		repeat
 			coroutine.yield()
-		until(latest_event[0] ~= "tick")
+		until latest_event[0] ~= "tick"
+
 		return table.unpack(latest_event)
 	end
 
