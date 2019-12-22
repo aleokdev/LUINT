@@ -10,11 +10,14 @@
 
 namespace LUINT::Machines
 {
-	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name) : StateMachine(_session, _name)
+	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name, Network* _network) : StateMachine(_session, _name, _network)
 	{
 		sol::state_view lua(state);
 		lua.open_libraries(sol::lib::coroutine, sol::lib::string, sol::lib::base, sol::lib::table, sol::lib::coroutine);
 		lua[sol::create_if_nil]["computer"]["connections"] = lua.create_table();
+
+		network->try_set_default_lua_state(state);
+		network->OnEvent += [this](std::string name, UID sender, sol::lua_value parameters) { PushEvent(name, sender, parameters); };
 	}
 
 	void ProcessingUnit::Startup()
@@ -25,7 +28,7 @@ namespace LUINT::Machines
 		
 		// TODO: Replace #include with #embed_str, when MSVC supports it
 		auto result = lua.do_string(
-#include "bios.lua"
+#include "event_test_bios.lua"
 );
 		
 		if (!result.valid())
@@ -36,13 +39,12 @@ namespace LUINT::Machines
 		}
 
 		main_coroutine = lua["main"];
-		PushEvent("startup", lua.create_table()); // Power on the machine (Execute code)
+		PushEvent("startup", uid, sol::lua_value(lua, sol::lua_nil)); // Power on the machine (Execute code)
 	}
 
 	void ProcessingUnit::OnConnect(Machine & other)
 	{
 		sol::state_view lua(state);
-		char uid[32];
 		std::cout << "adding\n";
 		std::string otherUID = other.uid.as_string("%08x");
 		lua[sol::create_if_nil]["computer"]["connections"][otherUID] = lua.create_table_with(
@@ -60,20 +62,21 @@ namespace LUINT::Machines
 		);
 		other.ImplementLua(state, lua[sol::create_if_nil]["computer"]["connections"][otherUID]);
 
-		PushEvent("on_connect", lua.create_table_with(1, otherUID));
+		if(is_on)
+			PushEvent("on_connect", uid, lua.create_table_with(1, otherUID));
 	}
 
 	void ProcessingUnit::OnDisconnect(Machine & other)
 	{
 	}
 
-	void ProcessingUnit::PushEvent(std::string name, sol::table&& parameters)
+	void ProcessingUnit::PushEvent(std::string name, UID sender, sol::lua_value parameters)
 	{
 		sol::state_view lua(state);
 
 		std::cout << "pushing event named " << name << "\n";
 		// First, push the event to latest_event
-		lua[sol::create_if_nil]["latest_event"] = lua.create_table_with(1, name, 2, parameters);
+		lua[sol::create_if_nil]["latest_event"] = lua.create_table_with(1, name, 2, sender.as_string("%08x").c_str(), 3, parameters);
 		auto result = main_coroutine(); // Continue executing the main coroutine
 
 		std::cout << "Main coroutine is " << (main_coroutine.runnable()? "runnable" : "not runnable") << std::endl;
@@ -92,7 +95,7 @@ namespace LUINT::Machines
 			Startup();
 
 		if (ImGui::MenuItem("Send signal"))
-			PushEvent("test", lua.create_table_with(1, "this is a test parameter"));
+			PushEvent("test", uid, lua.create_table_with(1, "this is a test parameter"));
 
 		if (ImGui::BeginMenu("Debug"))
 		{
@@ -118,7 +121,7 @@ namespace LUINT::Machines
 	void ProcessingUnit::RenderWindow()
 	{
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextWrapped("Machine currently powered down.");
+		ImGui::TextWrapped(is_on? "Machine currently turned on." : "Machine currently powered down.");
 		ticks++;
 	}
 

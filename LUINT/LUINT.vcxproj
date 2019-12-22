@@ -144,12 +144,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="bios.lua" />
+    <None Include="event_test_bios.lua" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="machine.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="network.cpp" />
     <ClCompile Include="processing_unit.cpp" />
     <ClCompile Include="UID.cpp" />
   </ItemGroup>
@@ -169,6 +171,8 @@
     <ClInclude Include="luainterface.h" />
     <ClInclude Include="machine.h" />
     <ClInclude Include="machine_list.h" />
+    <ClInclude Include="network.h" />
+    <ClInclude Include="observable.h" />
     <ClInclude Include="sol.hpp" />
     <ClInclude Include="UID.h" />
   </ItemGroup>

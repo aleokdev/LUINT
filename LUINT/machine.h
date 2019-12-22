@@ -6,6 +6,7 @@
 #include "machine_list.h"
 #include "luainterface.h"
 #include "sol.hpp"
+#include "network.h"
 
 struct lua_State;
 struct ImGuiIO;
@@ -37,7 +38,7 @@ namespace LUINT::Machines
 
 	struct Machine
 	{
-		Machine(LUINT::Data::SessionData& _session, std::string _name);
+		Machine(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
 		virtual ~Machine();
 		LUINT::UID uid;
 
@@ -46,6 +47,7 @@ namespace LUINT::Machines
 
 		/// Actual important stuff ///
 		LUINT::Data::SessionData* session;
+		Network* network = nullptr;
 		ImVec2 get_window_pos() { return windowPos; }
 		ImVec2 get_window_size() { return windowSize; }
 
@@ -86,14 +88,14 @@ namespace LUINT::Machines
 
 	struct StateMachine : public Machine
 	{
-		StateMachine(LUINT::Data::SessionData& _session, std::string _name);
+		StateMachine(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
 
 		inline lua_State* get_state() { return state; }
 
 		virtual void Startup() = 0;
 		virtual void Shutdown() = 0;
 
-		virtual void PushEvent(std::string name, sol::table&& parameters) = 0;
+		virtual void PushEvent(std::string name, UID sender, sol::lua_value parameters) = 0;
 
 		GENERATE_MACHINEINFO(StateMachine, (MachineInfo{ "State Machine", "aleok studios", "Generic machine that contains a Lua State." }));
 
@@ -103,7 +105,7 @@ namespace LUINT::Machines
 
 	struct ProcessingUnit : public StateMachine
 	{
-		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name);
+		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
 
 		void Startup() override;
 		void Shutdown() override {};
@@ -111,7 +113,7 @@ namespace LUINT::Machines
 		void OnConnect(Machine& other) override;
 		void OnDisconnect(Machine& other) override;
 
-		void PushEvent(std::string name, sol::table&& parameters) override;
+		void PushEvent(std::string name, UID sender, sol::lua_value parameters) override;
 
 		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "aleok studios", "Controllable machine that accepts input and can process user-given commands.", Interfaces::get_LUINTProcessor() }));
 		
@@ -131,6 +133,7 @@ namespace LUINT::Machines
 		int ticks = 0;
 		sol::basic_table_core<true, sol::reference>* impl_table;
 		sol::coroutine main_coroutine;
+		bool is_on = false;
 
 		inline int f_ticks()
 		{
@@ -140,24 +143,37 @@ namespace LUINT::Machines
 
 	struct Monitor : public Machine
 	{
-		Monitor(LUINT::Data::SessionData& _session, std::string _name);
+		Monitor(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
 
 		GENERATE_MACHINEINFO(Monitor, (MachineInfo{ "Monitor", "aleok studios", "Shows data from a processing unit." }));
 	};
 
 	struct Keyboard : public Machine
 	{
-		Keyboard(LUINT::Data::SessionData& _session, std::string _name) : Machine(_session, _name) {};
+		Keyboard(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
 
-		GENERATE_MACHINEINFO(Keyboard, (MachineInfo{ "Keyboard", "aleok studios", "Simple machine that sends key_pressed and key_released events to state machines connected.", Interfaces::get_SimpleOutputDevice() }));
+		GENERATE_MACHINEINFO(Keyboard, (MachineInfo{ "Keyboard", "aleok studios", "Simple machine that sends key_pressed and key_released events to state machines connected.", Interfaces::get_Keyboard() }));
 
 	protected:
 		void RenderWindow() override;
 	};
 
+	struct Button : public Machine
+	{
+		Button(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
+
+		GENERATE_MACHINEINFO(Button, (MachineInfo{ "Button", "aleok studios", "A button that sends button_pressed and button_released events.", Interfaces::get_Button() }));
+
+	protected:
+		void RenderWindow() override;
+
+	private:
+		bool pressed = false;
+	};
+
 	struct LED : public Machine
 	{
-		LED(LUINT::Data::SessionData& _session, std::string _name) : Machine(_session, _name) {};
+		LED(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
 
 		GENERATE_MACHINEINFO(LED, (MachineInfo{ "LED", "aleok studios", "Simple machine that can turn on or off.", Interfaces::get_SimpleOutputDevice() }));
 
@@ -188,6 +204,6 @@ namespace LUINT::Machines
 		bool turnedOn = false;
 	};
 
-#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor), _n(LED), _n(Keyboard)
+#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor), _n(LED), _n(Keyboard), _n(Button)
 	inline LUINT::Machines::List::MachineList<MACHINE_TYPES> allMachineTypes;
 }

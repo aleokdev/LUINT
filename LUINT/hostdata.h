@@ -3,6 +3,7 @@
 #include <memory>
 #include <utility>
 #include "machine.h"
+#include "network.h"
 
 namespace LUINT
 {
@@ -12,9 +13,9 @@ namespace LUINT
 		{
 			using Machine = LUINT::Machines::Machine;
 			std::vector<std::unique_ptr<Machine>> machines;
-			std::vector<std::pair<Machine*, Machine*>> connections;
+			std::vector<std::unique_ptr<Network>> networks;
 
-			Machine* connecting = nullptr;
+			Network* connecting = nullptr;
 		};
 	}
 }

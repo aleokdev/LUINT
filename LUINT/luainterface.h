@@ -146,5 +146,28 @@ namespace LUINT::Machines
 
 			return result;
 		}
+
+		inline LuaInterface get_Button()
+		{
+			LuaInterface result;
+
+			result.name = "Generic Button Input Device";
+			result.description = "Sends two simple events: button_pressed and button_released.";
+			result.events_sent = std::vector<LuaInterfaceEvent>
+			{
+				{
+					"button_pressed",
+					"[]",
+					"Sent when the button is pressed (clicked on)."
+				},
+				{
+					"button_released",
+					"[]",
+					"Sent when the button is released."
+				}
+			};
+
+			return result;
+		}
 	}
 }
