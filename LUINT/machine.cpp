@@ -22,7 +22,13 @@ namespace LUINT::Machines
 		for (auto& connection : session->connections)
 		{
 			if (connection.first == this || connection.second == this)
+			{
+				if (connection.first == this)
+					connection.second->OnDisconnect(*this);
+				else
+					connection.first->OnDisconnect(*this);
 				session->connections.erase(session->connections.begin() + i);
+			}
 
 			i++;
 		}
@@ -207,5 +213,30 @@ namespace LUINT::Machines
 	void LED::RenderWindow()
 	{
 		ImGui::Text(turnedOn ? "On" : "Off");
+	}
+
+	void Keyboard::RenderWindow()
+	{
+		//ImGui::TextUnformatted("Type here!");
+		//ImGuiIO& io = ImGui::GetIO();
+
+		//for (int i = 0; i < 512; i++)
+		//{
+		//	if (io.KeysDownDuration[i] == 0.f)
+		//	{
+		//		// Just pressed key!
+		//		for (auto& connection : session->connections)
+		//		{
+		//			if (connection.first == this)
+		//			{
+
+		//			}
+		//			if (connection.second == this)
+		//			{
+		//				
+		//			}
+		//		}
+		//	}
+		//}
 	}
 }

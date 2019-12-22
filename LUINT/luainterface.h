@@ -19,6 +19,13 @@ namespace LUINT::Machines
 		std::vector<Argument> arguments;
 	};
 
+	struct LuaInterfaceEvent
+	{
+		const char* name;
+		const char* type;
+		const char* description;
+	};
+
 	struct LuaInterface
 	{
 		LuaInterface()
@@ -30,6 +37,7 @@ namespace LUINT::Machines
 		const char* name;
 		const char* description;
 		std::vector<LuaInterfaceFunction> functions;
+		std::vector<LuaInterfaceEvent> events_sent;
 	};
 
 	namespace Interfaces
@@ -108,6 +116,31 @@ namespace LUINT::Machines
 					"Gets the current state of the machine. If not previously set with set_state, will return the default "
 					"state. The type returned is the same used in set_state.",
 					"state"
+				}
+			};
+
+			return result;
+		}
+
+		inline LuaInterface get_Keyboard()
+		{
+			LuaInterface result;
+
+			result.name = "Generic Keyboard Input Device";
+			result.description = "Sends two simple events: key_pressed and key_released.";
+			result.events_sent = std::vector<LuaInterfaceEvent>
+			{
+				{
+					"key_pressed",
+					"[number, string]",
+					"Sent when a key is pressed on the keyboard. Returns the keycode pressed as a number, and the corresponding"
+					"character typed (nil if there's not a key assigned to it, like enter, escape or any function key)"
+				},
+				{
+					"key_released",
+					"[number, string]",
+					"Sent when a key is released on the keyboard. Returns the keycode released as a number, and the corresponding"
+					"character related to that keycode (nil if there's not a key assigned to it, like enter, escape or any function key)"
 				}
 			};
 

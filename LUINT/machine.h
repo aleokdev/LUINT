@@ -33,6 +33,8 @@ namespace LUINT::Machines
 		const LuaInterface interface;
 	};
 
+	struct Machine;
+
 	struct Machine
 	{
 		Machine(LUINT::Data::SessionData& _session, std::string _name);
@@ -41,12 +43,11 @@ namespace LUINT::Machines
 
 		/// Decorations ///
 		std::string name;
-		std::vector<Machine*> connections;
+
+		/// Actual important stuff ///
 		LUINT::Data::SessionData* session;
 		ImVec2 get_window_pos() { return windowPos; }
 		ImVec2 get_window_size() { return windowSize; }
-
-		/// Actual important stuff ///
 
 		// Renders this machine as a window in the GLFW window.
 		void Render();
@@ -92,6 +93,8 @@ namespace LUINT::Machines
 		virtual void Startup() = 0;
 		virtual void Shutdown() = 0;
 
+		virtual void PushEvent(std::string name, sol::table&& parameters) = 0;
+
 		GENERATE_MACHINEINFO(StateMachine, (MachineInfo{ "State Machine", "aleok studios", "Generic machine that contains a Lua State." }));
 
 	protected:
@@ -108,7 +111,7 @@ namespace LUINT::Machines
 		void OnConnect(Machine& other) override;
 		void OnDisconnect(Machine& other) override;
 
-		void PushEvent(std::string name, sol::table&& parameters);
+		void PushEvent(std::string name, sol::table&& parameters) override;
 
 		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "aleok studios", "Controllable machine that accepts input and can process user-given commands.", Interfaces::get_LUINTProcessor() }));
 		
@@ -140,6 +143,16 @@ namespace LUINT::Machines
 		Monitor(LUINT::Data::SessionData& _session, std::string _name);
 
 		GENERATE_MACHINEINFO(Monitor, (MachineInfo{ "Monitor", "aleok studios", "Shows data from a processing unit." }));
+	};
+
+	struct Keyboard : public Machine
+	{
+		Keyboard(LUINT::Data::SessionData& _session, std::string _name) : Machine(_session, _name) {};
+
+		GENERATE_MACHINEINFO(Keyboard, (MachineInfo{ "Keyboard", "aleok studios", "Simple machine that sends key_pressed and key_released events to state machines connected.", Interfaces::get_SimpleOutputDevice() }));
+
+	protected:
+		void RenderWindow() override;
 	};
 
 	struct LED : public Machine
@@ -175,6 +188,6 @@ namespace LUINT::Machines
 		bool turnedOn = false;
 	};
 
-#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor), _n(LED)
+#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor), _n(LED), _n(Keyboard)
 	inline LUINT::Machines::List::MachineList<MACHINE_TYPES> allMachineTypes;
 }
