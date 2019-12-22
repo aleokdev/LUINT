@@ -145,12 +145,16 @@
   <ItemGroup>
     <None Include="bios.lua" />
     <None Include="event_test_bios.lua" />
+    <None Include="monitor_test_bios.lua" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="button.cpp" />
     <ClCompile Include="gui.cpp" />
+    <ClCompile Include="LED.cpp" />
     <ClCompile Include="machine.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ptm_monitor.cpp" />
     <ClCompile Include="network.cpp" />
     <ClCompile Include="processing_unit.cpp" />
     <ClCompile Include="UID.cpp" />
@@ -164,16 +168,23 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="all_machines.h" />
+    <ClInclude Include="button.h" />
     <ClInclude Include="diskreader.h" />
     <ClInclude Include="forward.hpp" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="hostdata.h" />
+    <ClInclude Include="keyboard.h" />
+    <ClInclude Include="LED.h" />
     <ClInclude Include="luainterface.h" />
     <ClInclude Include="machine.h" />
     <ClInclude Include="machine_list.h" />
+    <ClInclude Include="ptm_monitor.h" />
     <ClInclude Include="network.h" />
     <ClInclude Include="observable.h" />
+    <ClInclude Include="processing_unit.h" />
     <ClInclude Include="sol.hpp" />
+    <ClInclude Include="state_machine.h" />
     <ClInclude Include="UID.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

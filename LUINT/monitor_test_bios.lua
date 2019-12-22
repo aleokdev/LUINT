@@ -18,8 +18,43 @@ function main()
 		return table.unpack(latest_event)
 	end
 
+	local screen = nil
+	local uid = nil
+	for k, v in pairs(computer.connections) do
+		if v.name == "PTM Monitor" then
+			screen = v
+			uid = k
+			break
+		end
+	end
+
+	if screen == nil then
+		print("Couldn't find any screen.")
+		return
+	end
+
+	local function write(string, x, y)
+		for i = 1, #string do
+			screen.set(string:sub(i, i), x + i - 1, y)
+		end
+	end
+	screen.write = write
+
+	screen.write("Testing monitor, 1 2 3...", 1, 1)
+	screen.write("Screen UID: " .. uid, 1, 2)
+
+	local i = 1
+	local dir = 1
 	repeat
-		print(pull())
+		screen.fill(" ", 1, 3, 40, 1)
+		screen.write("Hello world!", i, 3)
+		i = i + dir
+		if i > 20 then
+			dir = -1
+		elseif i == 1 then
+			dir = 1
+		end
+		coroutine.yield()
 	until false
 end
 

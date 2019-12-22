@@ -74,6 +74,8 @@ namespace LUINT::Machines
 			return name;
 		}
 
+		virtual ImGuiWindowFlags GetWindowFlags() { return ImGuiWindowFlags_MenuBar; }
+
 	private:
 		void AddDefaultMenuItems();
 		void ShowMachineInfo();
@@ -85,125 +87,4 @@ namespace LUINT::Machines
 		ImVec2 windowPos;
 		ImVec2 windowSize;
 	};
-
-	struct StateMachine : public Machine
-	{
-		StateMachine(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
-
-		inline lua_State* get_state() { return state; }
-
-		virtual void Startup() = 0;
-		virtual void Shutdown() = 0;
-
-		virtual void PushEvent(std::string name, UID sender, sol::lua_value parameters) = 0;
-
-		GENERATE_MACHINEINFO(StateMachine, (MachineInfo{ "State Machine", "aleok studios", "Generic machine that contains a Lua State." }));
-
-	protected:
-		lua_State* state;
-	};
-
-	struct ProcessingUnit : public StateMachine
-	{
-		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
-
-		void Startup() override;
-		void Shutdown() override {};
-
-		void OnConnect(Machine& other) override;
-		void OnDisconnect(Machine& other) override;
-
-		void PushEvent(std::string name, UID sender, sol::lua_value parameters) override;
-
-		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "aleok studios", "Controllable machine that accepts input and can process user-given commands.", Interfaces::get_LUINTProcessor() }));
-		
-	protected:
-		void RenderWindow() override;
-		void RenderChildWindows() override;
-		void RenderMenuItems() override;
-
-		void RenderTerminal();
-
-	private:
-		bool showStateInspector = false;
-		bool showTerminal = false;
-		const int terminalBufferSize = 128;
-		char terminalBuffer[128] = "";
-		std::vector<std::string> terminalLog;
-		int ticks = 0;
-		sol::basic_table_core<true, sol::reference>* impl_table;
-		sol::coroutine main_coroutine;
-		bool is_on = false;
-
-		inline int f_ticks()
-		{
-			return ticks;
-		};
-	};
-
-	struct Monitor : public Machine
-	{
-		Monitor(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
-
-		GENERATE_MACHINEINFO(Monitor, (MachineInfo{ "Monitor", "aleok studios", "Shows data from a processing unit." }));
-	};
-
-	struct Keyboard : public Machine
-	{
-		Keyboard(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
-
-		GENERATE_MACHINEINFO(Keyboard, (MachineInfo{ "Keyboard", "aleok studios", "Simple machine that sends key_pressed and key_released events to state machines connected.", Interfaces::get_Keyboard() }));
-
-	protected:
-		void RenderWindow() override;
-	};
-
-	struct Button : public Machine
-	{
-		Button(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
-
-		GENERATE_MACHINEINFO(Button, (MachineInfo{ "Button", "aleok studios", "A button that sends button_pressed and button_released events.", Interfaces::get_Button() }));
-
-	protected:
-		void RenderWindow() override;
-
-	private:
-		bool pressed = false;
-	};
-
-	struct LED : public Machine
-	{
-		LED(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
-
-		GENERATE_MACHINEINFO(LED, (MachineInfo{ "LED", "aleok studios", "Simple machine that can turn on or off.", Interfaces::get_SimpleOutputDevice() }));
-
-		void ImplementLua(lua_State* state, sol::table&& proxy_table) override;
-
-		struct lua_impl
-		{
-			void do_thing()
-			{
-				std::cout << "thing";
-			}
-		};
-
-		inline void f_set_state(bool new_state)
-		{
-			turnedOn = new_state;
-		}
-
-		inline bool f_get_state()
-		{
-			return turnedOn;
-		}
-
-	protected:
-		void RenderWindow() override;
-
-	private:
-		bool turnedOn = false;
-	};
-
-#define MACHINE_TYPES _n(ProcessingUnit), _n(Monitor), _n(LED), _n(Keyboard), _n(Button)
-	inline LUINT::Machines::List::MachineList<MACHINE_TYPES> allMachineTypes;
 }

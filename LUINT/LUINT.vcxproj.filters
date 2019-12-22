@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\machines">
+      <UniqueIdentifier>{03bd3751-8902-47dd-b4bf-348095c4aad7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -20,6 +23,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="event_test_bios.lua">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="monitor_test_bios.lua">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -42,11 +48,17 @@
     <ClCompile Include="network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LED.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ptm_monitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="machine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="UID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -76,6 +88,30 @@
     </ClInclude>
     <ClInclude Include="network.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="machine.h">
+      <Filter>Header Files\machines</Filter>
+    </ClInclude>
+    <ClInclude Include="processing_unit.h">
+      <Filter>Header Files\machines</Filter>
+    </ClInclude>
+    <ClInclude Include="keyboard.h">
+      <Filter>Header Files\machines</Filter>
+    </ClInclude>
+    <ClInclude Include="button.h">
+      <Filter>Header Files\machines</Filter>
+    </ClInclude>
+    <ClInclude Include="LED.h">
+      <Filter>Header Files\machines</Filter>
+    </ClInclude>
+    <ClInclude Include="state_machine.h">
+      <Filter>Header Files\machines</Filter>
+    </ClInclude>
+    <ClInclude Include="all_machines.h">
+      <Filter>Header Files\machines</Filter>
+    </ClInclude>
+    <ClInclude Include="ptm_monitor.h">
+      <Filter>Header Files\machines</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

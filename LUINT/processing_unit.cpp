@@ -1,4 +1,4 @@
-#include "machine.h"
+#include "processing_unit.h"
 #include "gui.h"
 #include "lua.hpp"
 #include "lualib.h"
@@ -28,7 +28,7 @@ namespace LUINT::Machines
 		
 		// TODO: Replace #include with #embed_str, when MSVC supports it
 		auto result = lua.do_string(
-#include "event_test_bios.lua"
+#include "monitor_test_bios.lua"
 );
 		
 		if (!result.valid())
@@ -39,6 +39,7 @@ namespace LUINT::Machines
 		}
 
 		main_coroutine = lua["main"];
+		is_on = true;
 		PushEvent("startup", uid, sol::lua_value(lua, sol::lua_nil)); // Power on the machine (Execute code)
 	}
 
@@ -94,7 +95,7 @@ namespace LUINT::Machines
 		if (ImGui::MenuItem("Start up"))
 			Startup();
 
-		if (ImGui::MenuItem("Send signal"))
+		if (ImGui::MenuItem("Send signal") && is_on)
 			PushEvent("test", uid, lua.create_table_with(1, "this is a test parameter"));
 
 		if (ImGui::BeginMenu("Debug"))
@@ -122,7 +123,16 @@ namespace LUINT::Machines
 	{
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextWrapped(is_on? "Machine currently turned on." : "Machine currently powered down.");
-		ticks++;
+		
+		if (is_on)
+		{
+			time_since_last_tick += ImGui::GetIO().DeltaTime;
+			if (time_since_last_tick > 1.f / ticks_per_second)
+			{
+				PushEvent("tick", uid, sol::lua_value(state, sol::lua_nil));
+				time_since_last_tick = 0;
+			}
+		}
 	}
 
 	void ProcessingUnit::RenderTerminal()
