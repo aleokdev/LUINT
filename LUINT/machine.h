@@ -6,6 +6,7 @@
 #include "machine_list.h"
 #include "luainterface.h"
 #include "sol.hpp"
+#include "network.h"
 
 struct lua_State;
 struct ImGuiIO;
@@ -46,6 +47,7 @@ namespace LUINT::Machines
 
 		/// Actual important stuff ///
 		LUINT::Data::SessionData* session;
+		Network* network = nullptr;
 		ImVec2 get_window_pos() { return windowPos; }
 		ImVec2 get_window_size() { return windowSize; }
 

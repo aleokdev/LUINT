@@ -18,20 +18,10 @@ namespace LUINT::Machines
 	{
 		// Remove the machine from any connections.
 
-		int i = 0;
-		for (auto& connection : session->connections)
-		{
-			if (connection.first == this || connection.second == this)
-			{
-				if (connection.first == this)
-					connection.second->OnDisconnect(*this);
-				else
-					connection.first->OnDisconnect(*this);
-				session->connections.erase(session->connections.begin() + i);
-			}
+		if (network == nullptr)
+			return;
 
-			i++;
-		}
+		network->remove_machine(this);
 	}
 
 #pragma region Rendering
@@ -72,6 +62,7 @@ namespace LUINT::Machines
 		{
 			ImGui::Text("UID: %s", uid.as_string().c_str());
 			ImGui::Text("Lua version: %s", LUA_VERSION);
+			ImGui::Text("Connected Network UID: %s", uid.as_string().c_str());
 		}
 		ImGui::End();
 	}
@@ -109,6 +100,9 @@ namespace LUINT::Machines
 
 		RenderWindow();
 
+		char cannotConnectToItselfID[16];
+		sprintf_s(cannotConnectToItselfID, 16, "n%s", uid.as_string("%x").c_str());
+
 		if (session->connecting != nullptr)
 		{
 			if (ImGui::IsWindowHovered())
@@ -119,16 +113,15 @@ namespace LUINT::Machines
 
 				if (ImGui::IsMouseClicked(0))
 				{
-					if (session->connecting == this)
+					if (session->connecting == network)
 					{
-						showCannotConnectToItselfTooltip = true;
+						ImGui::OpenPopup(cannotConnectToItselfID);
 					}
 					else
 					{
-						// Connect to the other machine
-						session->connections.emplace_back(std::pair<Machine*, Machine*>(session->connecting, this));
-						session->connecting->OnConnect(*this);
-						this->OnConnect(*session->connecting);
+						// Place this machine in the network being connected
+						network = session->connecting;
+						session->connecting->add_machine(this);
 						session->connecting = nullptr;
 					}
 				}
@@ -138,13 +131,12 @@ namespace LUINT::Machines
 			}
 		}
 
-		if (showCannotConnectToItselfTooltip)
+		if (ImGui::BeginPopup(cannotConnectToItselfID))
 		{
-			ImGui::BeginTooltip();
 			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
 			ImGui::TextUnformatted("Cannot connect a machine to itself.");
 			ImGui::PopTextWrapPos();
-			ImGui::EndTooltip();
+			ImGui::EndPopup();
 		}
 
 		ImGui::End();
@@ -159,7 +151,7 @@ namespace LUINT::Machines
 	{
 		if (ImGui::BeginMenu("Connections"))
 		{
-			if (session->connecting == this)
+			if (session->connecting == network)
 			{
 				if (ImGui::MenuItem("Connect", "Ctrl+LMB", true))
 				{
@@ -170,7 +162,7 @@ namespace LUINT::Machines
 			{
 				if (ImGui::MenuItem("Connect", "Ctrl+LMB", false))
 				{
-					session->connecting = this;
+					session->connecting = network;
 				}
 			}
 			else
