@@ -10,7 +10,7 @@
 
 namespace LUINT::Machines
 {
-	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name) : StateMachine(_session, _name)
+	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name, Network* _network) : StateMachine(_session, _name, _network)
 	{
 		sol::state_view lua(state);
 		lua.open_libraries(sol::lib::coroutine, sol::lib::string, sol::lib::base, sol::lib::table, sol::lib::coroutine);
@@ -60,7 +60,8 @@ namespace LUINT::Machines
 		);
 		other.ImplementLua(state, lua[sol::create_if_nil]["computer"]["connections"][otherUID]);
 
-		PushEvent("on_connect", lua.create_table_with(1, otherUID));
+		if(is_on)
+			PushEvent("on_connect", lua.create_table_with(1, otherUID));
 	}
 
 	void ProcessingUnit::OnDisconnect(Machine & other)
@@ -118,7 +119,7 @@ namespace LUINT::Machines
 	void ProcessingUnit::RenderWindow()
 	{
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextWrapped("Machine currently powered down.");
+		ImGui::TextWrapped(is_on? "Machine currently turned on." : "Machine currently powered down.");
 		ticks++;
 	}
 

@@ -13,7 +13,7 @@ namespace LUINT
 		{
 			using Machine = LUINT::Machines::Machine;
 			std::vector<std::unique_ptr<Machine>> machines;
-			std::vector<Network> networks;
+			std::vector<std::unique_ptr<Network>> networks;
 
 			Network* connecting = nullptr;
 		};

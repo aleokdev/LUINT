@@ -10,8 +10,9 @@ using namespace LUINT;
 
 namespace LUINT::Machines
 {
-	Machine::Machine(Data::SessionData& _session, std::string _name) : session(&_session), name(_name), uid(UID::generate())
+	Machine::Machine(Data::SessionData& _session, std::string _name, Network* _network) : session(&_session), name(_name), uid(UID::generate()), network(_network)
 	{
+		network->add_machine(this);
 	}
 
 	Machine::~Machine()
@@ -62,7 +63,10 @@ namespace LUINT::Machines
 		{
 			ImGui::Text("UID: %s", uid.as_string().c_str());
 			ImGui::Text("Lua version: %s", LUA_VERSION);
-			ImGui::Text("Connected Network UID: %s", uid.as_string().c_str());
+			if(network)
+				ImGui::Text("Connected Network UID: %s", network->uid.as_string().c_str());
+			else
+				ImGui::TextUnformatted("Connected Network UID: <nil>");
 		}
 		ImGui::End();
 	}
@@ -180,12 +184,12 @@ namespace LUINT::Machines
 
 #pragma endregion Rendering
 
-	StateMachine::StateMachine(Data::SessionData& _session, std::string _name) : Machine(_session, _name)
+	StateMachine::StateMachine(Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network)
 	{
 		state = luaL_newstate();
 	}
 
-	Monitor::Monitor(Data::SessionData& _session, std::string _name) : Machine(_session, _name)
+	Monitor::Monitor(Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network)
 	{
 	}
 

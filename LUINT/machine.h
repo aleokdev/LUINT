@@ -38,7 +38,7 @@ namespace LUINT::Machines
 
 	struct Machine
 	{
-		Machine(LUINT::Data::SessionData& _session, std::string _name);
+		Machine(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
 		virtual ~Machine();
 		LUINT::UID uid;
 
@@ -88,7 +88,7 @@ namespace LUINT::Machines
 
 	struct StateMachine : public Machine
 	{
-		StateMachine(LUINT::Data::SessionData& _session, std::string _name);
+		StateMachine(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
 
 		inline lua_State* get_state() { return state; }
 
@@ -105,7 +105,7 @@ namespace LUINT::Machines
 
 	struct ProcessingUnit : public StateMachine
 	{
-		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name);
+		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
 
 		void Startup() override;
 		void Shutdown() override {};
@@ -133,6 +133,7 @@ namespace LUINT::Machines
 		int ticks = 0;
 		sol::basic_table_core<true, sol::reference>* impl_table;
 		sol::coroutine main_coroutine;
+		bool is_on = false;
 
 		inline int f_ticks()
 		{
@@ -142,14 +143,14 @@ namespace LUINT::Machines
 
 	struct Monitor : public Machine
 	{
-		Monitor(LUINT::Data::SessionData& _session, std::string _name);
+		Monitor(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
 
 		GENERATE_MACHINEINFO(Monitor, (MachineInfo{ "Monitor", "aleok studios", "Shows data from a processing unit." }));
 	};
 
 	struct Keyboard : public Machine
 	{
-		Keyboard(LUINT::Data::SessionData& _session, std::string _name) : Machine(_session, _name) {};
+		Keyboard(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
 
 		GENERATE_MACHINEINFO(Keyboard, (MachineInfo{ "Keyboard", "aleok studios", "Simple machine that sends key_pressed and key_released events to state machines connected.", Interfaces::get_SimpleOutputDevice() }));
 
@@ -159,7 +160,7 @@ namespace LUINT::Machines
 
 	struct LED : public Machine
 	{
-		LED(LUINT::Data::SessionData& _session, std::string _name) : Machine(_session, _name) {};
+		LED(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
 
 		GENERATE_MACHINEINFO(LED, (MachineInfo{ "LED", "aleok studios", "Simple machine that can turn on or off.", Interfaces::get_SimpleOutputDevice() }));
 

@@ -7,6 +7,7 @@
 #include "machine.h"
 #include "hostdata.h"
 #include "luainterface.h"
+#include "network.h"
 
 void drawLuaStateInspectorTable(lua_State * state)
 {
@@ -213,7 +214,13 @@ struct encapsulated_createmachine
 	static void callback()
 	{
 		if (&MachineType::static_info == machine_to_create)
-			session->machines.emplace_back(std::make_unique<MachineType>(*session, MachineType::static_info.name));
+			session->machines.emplace_back(
+				std::make_unique<MachineType>(
+					*session,
+					MachineType::static_info.name,
+					&*session->networks.emplace_back(std::make_unique<LUINT::Network>())
+				)
+			);
 	}
 
 	inline static LUINT::Data::SessionData* session;
