@@ -75,12 +75,12 @@ namespace LUINT::Machines
 	{
 		sol::state_view lua(state);
 
-		std::cout << "pushing event named " << name << "\n";
+		//std::cout << "pushing event named " << name << "\n";
 		// First, push the event to latest_event
 		lua[sol::create_if_nil]["latest_event"] = lua.create_table_with(1, name, 2, sender.as_string("%08x").c_str(), 3, parameters);
 		auto result = main_coroutine(); // Continue executing the main coroutine
 
-		std::cout << "Main coroutine is " << (main_coroutine.runnable()? "runnable" : "not runnable") << std::endl;
+		//std::cout << "Main coroutine is " << (main_coroutine.runnable()? "runnable" : "not runnable") << std::endl;
 		if (!result.valid())
 		{
 			sol::error err = result;
