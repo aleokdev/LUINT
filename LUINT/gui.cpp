@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include "machine.h"
+#include "state_machine.h"
 #include "hostdata.h"
 #include "luainterface.h"
 #include "network.h"
@@ -226,6 +227,8 @@ struct encapsulated_createmachine
 	inline static LUINT::Data::SessionData* session;
 	inline static const LUINT::Machines::MachineInfo* machine_to_create = nullptr;
 };
+
+#include "all_machines.h"
 
 void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open)
 {
