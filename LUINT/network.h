@@ -13,6 +13,8 @@ namespace LUINT
 
 	struct Network
 	{
+		~Network() {}
+
 		template<typename... ValTy>
 		void SendEvent(std::string name, UID sender, ValTy... vals)
 		{

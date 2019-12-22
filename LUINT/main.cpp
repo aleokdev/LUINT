@@ -83,6 +83,10 @@ int main(void)
 		glfwSwapBuffers(window);
 	}
 
+	// Release the Machines first, then the Networks, because ~Machine does some work with its assigned Network
+	for (auto& machine : session.machines)
+		machine.release();
+
 	glfwTerminate();
 	return 0;
 }
