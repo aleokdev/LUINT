@@ -95,7 +95,7 @@ namespace LUINT::Machines
 		if (ImGui::MenuItem("Start up"))
 			Startup();
 
-		if (ImGui::MenuItem("Send signal"))
+		if (ImGui::MenuItem("Send signal") && is_on)
 			PushEvent("test", uid, lua.create_table_with(1, "this is a test parameter"));
 
 		if (ImGui::BeginMenu("Debug"))
