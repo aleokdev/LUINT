@@ -39,6 +39,7 @@ namespace LUINT::Machines
 		}
 
 		main_coroutine = lua["main"];
+		is_on = true;
 		PushEvent("startup", uid, sol::lua_value(lua, sol::lua_nil)); // Power on the machine (Execute code)
 	}
 
@@ -122,7 +123,16 @@ namespace LUINT::Machines
 	{
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextWrapped(is_on? "Machine currently turned on." : "Machine currently powered down.");
-		ticks++;
+		
+		if (is_on)
+		{
+			time_since_last_tick += ImGui::GetIO().DeltaTime;
+			if (time_since_last_tick > 1.f / ticks_per_second)
+			{
+				PushEvent("tick", uid, sol::lua_value(state, sol::lua_nil));
+				time_since_last_tick = 0;
+			}
+		}
 	}
 
 	void ProcessingUnit::RenderTerminal()

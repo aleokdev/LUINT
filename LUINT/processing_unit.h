@@ -31,14 +31,11 @@ namespace LUINT::Machines
 		const int terminalBufferSize = 128;
 		char terminalBuffer[128] = "";
 		std::vector<std::string> terminalLog;
-		int ticks = 0;
 		sol::basic_table_core<true, sol::reference>* impl_table;
 		sol::coroutine main_coroutine;
 		bool is_on = false;
-
-		inline int f_ticks()
-		{
-			return ticks;
-		};
+		// How often is the "tick" event sent to the processor, approximately.
+		int ticks_per_second = 20;
+		float time_since_last_tick = 0.f;
 	};
 }

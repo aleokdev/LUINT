@@ -43,8 +43,18 @@ function main()
 	screen.write("Testing monitor, 1 2 3...", 1, 1)
 	screen.write("Screen UID: " .. uid, 1, 2)
 
+	local i = 1
+	local dir = 1
 	repeat
-		print(pull())
+		screen.fill(" ", 1, 3, 40, 1)
+		screen.write("Hello world!", i, 3)
+		i = i + dir
+		if i > 20 then
+			dir = -1
+		elseif i == 1 then
+			dir = 1
+		end
+		coroutine.yield()
 	until false
 end
 
