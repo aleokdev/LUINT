@@ -89,6 +89,9 @@ namespace LUINT::Machines
 
 		inline lua_State* get_state() { return state; }
 
+		virtual void Startup() = 0;
+		virtual void Shutdown() = 0;
+
 		GENERATE_MACHINEINFO(StateMachine, (MachineInfo{ "State Machine", "aleok studios", "Generic machine that contains a Lua State." }));
 
 	protected:
@@ -99,10 +102,13 @@ namespace LUINT::Machines
 	{
 		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name);
 
+		void Startup() override;
+		void Shutdown() override {};
+
 		void OnConnect(Machine& other) override;
 		void OnDisconnect(Machine& other) override;
 
-		void PushEvent(std::string name, std::vector<sol::lua_value> parameters);
+		void PushEvent(std::string name, sol::table&& parameters);
 
 		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "aleok studios", "Controllable machine that accepts input and can process user-given commands.", Interfaces::get_LUINTProcessor() }));
 		
@@ -121,6 +127,7 @@ namespace LUINT::Machines
 		std::vector<std::string> terminalLog;
 		int ticks = 0;
 		sol::basic_table_core<true, sol::reference>* impl_table;
+		sol::coroutine main_coroutine;
 
 		inline int f_ticks()
 		{

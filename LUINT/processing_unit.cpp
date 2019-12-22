@@ -12,13 +12,31 @@ namespace LUINT::Machines
 {
 	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name) : StateMachine(_session, _name)
 	{
-		luaopen_string(state);
-		luaopen_base(state);
-		luaopen_table(state);
-
 		sol::state_view lua(state);
+		lua.open_libraries(sol::lib::coroutine, sol::lib::string, sol::lib::base, sol::lib::table, sol::lib::coroutine);
 		lua[sol::create_if_nil]["computer"]["connections"] = lua.create_table();
-		//lua["computer"].set_function("pull");
+	}
+
+	void ProcessingUnit::Startup()
+	{
+		sol::state_view lua(state);
+		// Create main coroutine, set it to bios main function
+		// todo: allow modifying bios
+		
+		// TODO: Replace #include with #embed_str, when MSVC supports it
+		auto result = lua.do_string(
+#include "bios.lua"
+);
+		
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::cout << "Fatal: BIOS couldn't load. Error:\n" << err.what() << std::endl;
+			throw;
+		}
+
+		main_coroutine = lua["main"];
+		PushEvent("startup", lua.create_table()); // Power on the machine (Execute code)
 	}
 
 	void ProcessingUnit::OnConnect(Machine & other)
@@ -42,20 +60,40 @@ namespace LUINT::Machines
 		);
 		other.ImplementLua(state, lua[sol::create_if_nil]["computer"]["connections"][otherUID]);
 
-		PushEvent("on_connect", std::vector<sol::lua_value>{sol::lua_value(lua, otherUID)});
+		PushEvent("on_connect", lua.create_table_with(1, otherUID));
 	}
 
 	void ProcessingUnit::OnDisconnect(Machine & other)
 	{
 	}
 
-	void ProcessingUnit::PushEvent(std::string name, std::vector<sol::lua_value> parameters)
+	void ProcessingUnit::PushEvent(std::string name, sol::table&& parameters)
 	{
+		sol::state_view lua(state);
 
+		std::cout << "pushing event named " << name << "\n";
+		// First, push the event to latest_event
+		lua[sol::create_if_nil]["latest_event"] = lua.create_table_with(1, name, 2, parameters);
+		auto result = main_coroutine(); // Continue executing the main coroutine
+
+		std::cout << "Main coroutine is " << (main_coroutine.runnable()? "runnable" : "not runnable") << std::endl;
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::cout << "FATAL: Could not continue main coroutine:\n" << err.what() << std::endl;
+		}
 	}
 
 	void ProcessingUnit::RenderMenuItems()
 	{
+		sol::state_view lua(state);
+
+		if (ImGui::MenuItem("Start up"))
+			Startup();
+
+		if (ImGui::MenuItem("Send signal"))
+			PushEvent("test", lua.create_table_with(1, "this is a test parameter"));
+
 		if (ImGui::BeginMenu("Debug"))
 		{
 			ImGui::MenuItem("State Inspector", NULL, &showStateInspector);
