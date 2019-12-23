@@ -104,9 +104,6 @@
     <ClInclude Include="LED.h">
       <Filter>Header Files\machines</Filter>
     </ClInclude>
-    <ClInclude Include="state_machine.h">
-      <Filter>Header Files\machines</Filter>
-    </ClInclude>
     <ClInclude Include="all_machines.h">
       <Filter>Header Files\machines</Filter>
     </ClInclude>

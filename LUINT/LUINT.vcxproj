@@ -184,7 +184,6 @@
     <ClInclude Include="observable.h" />
     <ClInclude Include="processing_unit.h" />
     <ClInclude Include="sol.hpp" />
-    <ClInclude Include="state_machine.h" />
     <ClInclude Include="UID.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
