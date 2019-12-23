@@ -37,6 +37,7 @@ namespace LUINT::Machines
 		t.set_function("ticks", &ProcessingUnit::f_ticks, this);
 		t.set_function("shutdown", [this]() { after_tick = AfterTickAction::shutdown; });
 		t.set_function("reboot", [this]() { after_tick = AfterTickAction::reboot; });
+		t.set_function("push", [this](std::string event_name, sol::table params) { PushEvent(event_name, uid, params); });
 	}
 
 	void ProcessingUnit::ReconnectAll()
@@ -68,7 +69,7 @@ namespace LUINT::Machines
 		main_coroutine = std::make_unique<sol::coroutine>(lua["main"]);
 		is_on = true;
 		ticks_since_startup = 0;
-		PushEvent("startup", uid, sol::lua_value(lua, sol::lua_nil)); // Power on the machine (Execute code)
+		PushEvent("startup", uid, sol::lua_value(lua, sol::lua_nil));
 	}
 
 	void ProcessingUnit::Shutdown()
