@@ -12,12 +12,25 @@ namespace LUINT::Machines
 {
 	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name, Network* _network) : StateMachine(_session, _name, _network)
 	{
+		Setup();
+	}
+
+	void ProcessingUnit::Setup()
+	{
 		sol::state_view lua(state);
+
+		lua.globals().clear();
 		lua.open_libraries(sol::lib::coroutine, sol::lib::string, sol::lib::base, sol::lib::table, sol::lib::coroutine);
 		lua[sol::create_if_nil]["computer"]["connections"] = lua.create_table();
 
 		network->try_set_default_lua_state(state);
 		network->OnEvent += [this](std::string name, UID sender, sol::lua_value parameters) { PushEvent(name, sender, parameters); };
+
+		// Computer functions
+		sol::table t = lua["computer"];
+		t.set_function("ticks", &ProcessingUnit::f_ticks, this);
+		t.set_function("shutdown", &ProcessingUnit::Shutdown, this);
+		t.set_function("reboot", &ProcessingUnit::Reboot, this);
 	}
 
 	void ProcessingUnit::Startup()
@@ -40,7 +53,25 @@ namespace LUINT::Machines
 
 		main_coroutine = lua["main"];
 		is_on = true;
+		ticks_since_startup = 0;
 		PushEvent("startup", uid, sol::lua_value(lua, sol::lua_nil)); // Power on the machine (Execute code)
+	}
+
+	void ProcessingUnit::Shutdown()
+	{
+		is_on = false;
+		sol::state_view lua(state);
+		lua.registry().clear();
+		Setup();
+	}
+
+	void ProcessingUnit::Reboot()
+	{
+		is_on = false;
+		sol::state_view lua(state);
+		lua.registry().clear();
+		Setup();
+		Startup();
 	}
 
 	void ProcessingUnit::OnConnect(Machine & other)
@@ -73,6 +104,9 @@ namespace LUINT::Machines
 
 	void ProcessingUnit::PushEvent(std::string name, UID sender, sol::lua_value parameters)
 	{
+		if (!is_on)
+			return;
+
 		sol::state_view lua(state);
 
 		//std::cout << "pushing event named " << name << "\n";
@@ -133,6 +167,7 @@ namespace LUINT::Machines
 			time_since_last_tick += ImGui::GetIO().DeltaTime;
 			if (time_since_last_tick > 1.f / ticks_per_second)
 			{
+				ticks_since_startup++;
 				PushEvent("tick", uid, sol::lua_value(state, sol::lua_nil));
 				time_since_last_tick = 0;
 			}

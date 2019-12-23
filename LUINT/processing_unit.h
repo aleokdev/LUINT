@@ -8,8 +8,11 @@ namespace LUINT::Machines
 	{
 		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
 
+		// Call before Startup(). Setups functions, tables, etc.
+		void Setup();
 		void Startup() override;
-		void Shutdown() override {};
+		void Shutdown() override;
+		void Reboot();
 
 		void OnConnect(Machine& other) override;
 		void OnDisconnect(Machine& other) override;
@@ -25,6 +28,8 @@ namespace LUINT::Machines
 
 		void RenderTerminal();
 
+		int f_ticks() { return ticks_since_startup; }
+
 	private:
 		bool showStateInspector = false;
 		bool showTerminal = false;
@@ -37,5 +42,7 @@ namespace LUINT::Machines
 		// How often is the "tick" event sent to the processor, approximately.
 		int ticks_per_second = 20;
 		float time_since_last_tick = 0.f;
+		int ticks_since_startup = 0;
+
 	};
 }
