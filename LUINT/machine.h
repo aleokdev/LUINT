@@ -3,7 +3,7 @@
 #include "UID.h"
 #include <vector>
 #include <imgui.h> // For ImVec2
-#include "machine_list.h"
+#include "machine_list.tpp"
 #include "luainterface.h"
 #include "sol.hpp"
 #include "network.h"
