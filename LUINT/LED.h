@@ -9,7 +9,7 @@ namespace LUINT::Machines
 
 		GENERATE_MACHINEINFO(LED, (MachineInfo{ "LED", "aleok studios", "Simple machine that can turn on or off.", Interfaces::get_SimpleOutputDevice() }));
 
-		void ImplementLua(lua_State* state, sol::table&& proxy_table) override;
+		void ImplementLua(lua_State* state, sol::table& proxy_table) override;
 
 		struct lua_impl
 		{

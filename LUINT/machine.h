@@ -57,7 +57,7 @@ namespace LUINT::Machines
 		virtual void OnConnect(Machine& other) {}
 		virtual void OnDisconnect(Machine& other) {}
 
-		virtual void ImplementLua(lua_State* state, sol::table&& proxy_table) {};
+		virtual void ImplementLua(lua_State* state, sol::table& proxy_table) {};
 
 		// The MachineInfo of every machine acts as a "static unique identifier" for every machine.
 		inline static const MachineInfo static_info = MachineInfo{ "Machine", "aleok studios", "You shouldn't be seeing this." };

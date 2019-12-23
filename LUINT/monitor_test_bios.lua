@@ -20,10 +20,11 @@ function main()
 
 	local screen = nil
 	local uid = nil
-	for k, v in pairs(computer.connections) do
-		if v.name == "PTM Monitor" then
-			screen = v
-			uid = k
+	for _, address in pairs(computer.get_connections()) do
+		local proxy = computer.proxy(address)
+		if proxy.name == "PTM Monitor" then
+			screen = proxy
+			uid = address
 			break
 		end
 	end

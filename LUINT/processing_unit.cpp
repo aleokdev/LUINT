@@ -30,14 +30,39 @@ namespace LUINT::Machines
 		sol::state_view lua(state);
 
 		lua.open_libraries(sol::lib::coroutine, sol::lib::string, sol::lib::base, sol::lib::table, sol::lib::coroutine);
-		lua[sol::create_if_nil]["computer"]["connections"] = lua.create_table();
 
 		// Computer functions
-		sol::table t = lua["computer"];
+		sol::table t = lua.create_named_table("computer");
 		t.set_function("ticks", &ProcessingUnit::f_ticks, this);
 		t.set_function("shutdown", [this]() { after_tick = AfterTickAction::shutdown; });
 		t.set_function("reboot", [this]() { after_tick = AfterTickAction::reboot; });
 		t.set_function("push", [this](std::string event_name, sol::table params) { PushEvent(event_name, uid, params); });
+		t.set_function("get_connections", &ProcessingUnit::GetNetworkUIDs, this);
+		t.set_function("proxy", &ProcessingUnit::GetProxy, this);
+	}
+
+	sol::table ProcessingUnit::GetNetworkUIDs()
+	{
+		sol::table retval = sol::state_view(state).create_table();
+		int i = 1;
+		for (auto& machine : network->get_machines())
+		{
+			if (machine == this)
+				continue;
+
+			retval[i] = machine->uid.as_string("%08x");
+			i++;
+		}
+
+		return retval;
+	}
+
+	sol::table ProcessingUnit::GetProxy(std::string uid)
+	{
+		if (proxies.find(uid) == proxies.end())
+			return sol::nil;
+
+		return proxies[uid];
 	}
 
 	void ProcessingUnit::ReconnectAll()
@@ -93,7 +118,7 @@ namespace LUINT::Machines
 		sol::state_view lua(state);
 		std::cout << "adding\n";
 		std::string otherUID = other.uid.as_string("%08x");
-		lua[sol::create_if_nil]["computer"]["connections"][otherUID] = lua.create_table_with(
+		sol::table proxy = lua.create_table_with(
 			"uid", otherUID,
 			"name", other.name,
 			"type", lua.create_table_with(
@@ -106,7 +131,8 @@ namespace LUINT::Machines
 				)
 			)
 		);
-		other.ImplementLua(state, lua[sol::create_if_nil]["computer"]["connections"][otherUID]);
+		other.ImplementLua(state, proxy);
+		proxies.emplace(otherUID, proxy);
 
 		if(is_on)
 			PushEvent("on_connect", uid, lua.create_table_with(1, otherUID));

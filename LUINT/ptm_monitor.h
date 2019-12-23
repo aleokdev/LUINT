@@ -34,7 +34,7 @@ namespace LUINT::Machines
 
 	protected:
 		void RenderWindow() override;
-		void ImplementLua(lua_State* state, sol::table&& proxy_table) override;
+		void ImplementLua(lua_State* state, sol::table& proxy_table) override;
 
 		ImGuiWindowFlags GetWindowFlags() override { return ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize; }
 

@@ -4,6 +4,7 @@
 #include <memory>
 #include <queue>
 #include <tuple>
+#include <unordered_map>
 
 namespace LUINT::Machines
 {
@@ -36,6 +37,8 @@ namespace LUINT::Machines
 		void Tick();
 
 		int f_ticks() { return ticks_since_startup; }
+		sol::table GetNetworkUIDs();
+		sol::table GetProxy(std::string);
 
 	private:
 		lua_State* state = nullptr;
@@ -44,6 +47,7 @@ namespace LUINT::Machines
 		const int terminalBufferSize = 128;
 		char terminalBuffer[128] = "";
 		std::vector<std::string> terminalLog;
+		std::unordered_map<std::string, sol::table> proxies;
 		std::queue<std::tuple<std::string, UID, sol::lua_value>> eventQueue;
 		sol::basic_table_core<true, sol::reference>* impl_table;
 		std::unique_ptr<sol::coroutine> main_coroutine;

@@ -14,7 +14,7 @@ namespace LUINT
 		ImGui::SetWindowSize(ImGui::GetContentRegionAvail(), ImGuiCond_Appearing);
 	}
 
-	void Machines::PTMMonitor::ImplementLua(lua_State * state, sol::table && proxy_table)
+	void Machines::PTMMonitor::ImplementLua(lua_State * state, sol::table & proxy_table)
 	{
 		sol::state_view lua(state);
 
