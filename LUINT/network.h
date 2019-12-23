@@ -31,9 +31,7 @@ namespace LUINT
 
 		void try_set_default_lua_state(lua_State* s)
 		{
-			if (s == nullptr)
-				s = nullptr;
-			else if(!default_lua_state)
+			if(!default_lua_state)
 				default_lua_state = s;
 		}
 
