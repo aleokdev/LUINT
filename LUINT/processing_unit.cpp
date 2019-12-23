@@ -124,18 +124,29 @@ namespace LUINT::Machines
 
 		//std::cout << "pushing event named " << name << "\n";
 		// First, push the event to latest_event
-		lua[sol::create_if_nil]["latest_event"] = lua.create_table_with(1, name, 2, sender.as_string("%08x").c_str(), 3, parameters);
-		auto result = (*main_coroutine)(); // Continue executing the main coroutine
+		eventQueue.push({ name, sender, parameters });
+	}
 
-		if (!main_coroutine->runnable())
+	void ProcessingUnit::Tick()
+	{
+		sol::state_view lua(state);
+		while(eventQueue.size() > 0)
 		{
-			std::cout << "Main coroutine has finished executing." << std::endl;
-			is_on = false;
-		}
-		if (!result.valid())
-		{
-			sol::error err = result;
-			std::cout << "FATAL: Could not continue main coroutine:\n" << err.what() << std::endl;
+			auto event = eventQueue.front();
+			eventQueue.pop();
+			lua[sol::create_if_nil]["latest_event"] = lua.create_table_with(1, std::get<0>(event), 2, std::get<1>(event).as_string("%08x").c_str(), 3, std::get<2>(event));
+			auto result = (*main_coroutine)(); // Continue executing the main coroutine
+
+			if (!main_coroutine->runnable())
+			{
+				std::cout << "Main coroutine has finished executing." << std::endl;
+				is_on = false;
+			}
+			if (!result.valid())
+			{
+				sol::error err = result;
+				std::cout << "FATAL: Could not continue main coroutine:\n" << err.what() << std::endl;
+			}
 		}
 	}
 
@@ -182,6 +193,7 @@ namespace LUINT::Machines
 			{
 				ticks_since_startup++;
 				PushEvent("tick", uid, sol::lua_value(state, sol::lua_nil));
+				Tick();
 				time_since_last_tick = 0;
 			}
 		}

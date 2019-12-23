@@ -2,6 +2,8 @@
 #include "machine.h"
 #include "lua.h"
 #include <memory>
+#include <queue>
+#include <tuple>
 
 namespace LUINT::Machines
 {
@@ -31,6 +33,8 @@ namespace LUINT::Machines
 
 		void RenderTerminal();
 
+		void Tick();
+
 		int f_ticks() { return ticks_since_startup; }
 
 	private:
@@ -40,6 +44,7 @@ namespace LUINT::Machines
 		const int terminalBufferSize = 128;
 		char terminalBuffer[128] = "";
 		std::vector<std::string> terminalLog;
+		std::queue<std::tuple<std::string, UID, sol::lua_value>> eventQueue;
 		sol::basic_table_core<true, sol::reference>* impl_table;
 		std::unique_ptr<sol::coroutine> main_coroutine;
 		bool is_on = false;
