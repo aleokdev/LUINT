@@ -10,27 +10,41 @@
 
 namespace LUINT::Machines
 {
-	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name, Network* _network) : StateMachine(_session, _name, _network)
+	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network)
 	{
+		network->OnEvent += [this](std::string name, UID sender, sol::lua_value parameters) { PushEvent(name, sender, parameters); };
+
 		Setup();
 	}
 
 	void ProcessingUnit::Setup()
 	{
+		if (state)
+		{
+			network->try_set_default_lua_state(nullptr);
+			lua_close(state);
+		}
+		state = luaL_newstate();
+		network->try_set_default_lua_state(state);
+
 		sol::state_view lua(state);
 
-		lua.globals().clear();
 		lua.open_libraries(sol::lib::coroutine, sol::lib::string, sol::lib::base, sol::lib::table, sol::lib::coroutine);
 		lua[sol::create_if_nil]["computer"]["connections"] = lua.create_table();
-
-		network->try_set_default_lua_state(state);
-		network->OnEvent += [this](std::string name, UID sender, sol::lua_value parameters) { PushEvent(name, sender, parameters); };
 
 		// Computer functions
 		sol::table t = lua["computer"];
 		t.set_function("ticks", &ProcessingUnit::f_ticks, this);
-		t.set_function("shutdown", &ProcessingUnit::Shutdown, this);
-		t.set_function("reboot", &ProcessingUnit::Reboot, this);
+		t.set_function("shutdown", [this]() { after_tick = AfterTickAction::shutdown; });
+		t.set_function("reboot", [this]() { after_tick = AfterTickAction::reboot; });
+	}
+
+	void ProcessingUnit::ReconnectAll()
+	{
+		for (auto& machine : network->get_machines())
+		{
+			OnConnect(*machine);
+		}
 	}
 
 	void ProcessingUnit::Startup()
@@ -51,7 +65,7 @@ namespace LUINT::Machines
 			throw;
 		}
 
-		main_coroutine = lua["main"];
+		main_coroutine = std::make_unique<sol::coroutine>(lua["main"]);
 		is_on = true;
 		ticks_since_startup = 0;
 		PushEvent("startup", uid, sol::lua_value(lua, sol::lua_nil)); // Power on the machine (Execute code)
@@ -60,17 +74,16 @@ namespace LUINT::Machines
 	void ProcessingUnit::Shutdown()
 	{
 		is_on = false;
-		sol::state_view lua(state);
-		lua.registry().clear();
+		main_coroutine.reset();
 		Setup();
+		ReconnectAll();
 	}
 
 	void ProcessingUnit::Reboot()
 	{
 		is_on = false;
-		sol::state_view lua(state);
-		lua.registry().clear();
 		Setup();
+		ReconnectAll();
 		Startup();
 	}
 
@@ -112,9 +125,9 @@ namespace LUINT::Machines
 		//std::cout << "pushing event named " << name << "\n";
 		// First, push the event to latest_event
 		lua[sol::create_if_nil]["latest_event"] = lua.create_table_with(1, name, 2, sender.as_string("%08x").c_str(), 3, parameters);
-		auto result = main_coroutine(); // Continue executing the main coroutine
+		auto result = (*main_coroutine)(); // Continue executing the main coroutine
 
-		if (!main_coroutine.runnable())
+		if (!main_coroutine->runnable())
 		{
 			std::cout << "Main coroutine has finished executing." << std::endl;
 			is_on = false;
@@ -148,7 +161,7 @@ namespace LUINT::Machines
 	{
 		if (showStateInspector)
 		{
-			LUINT::GUI::DrawLuaStateInspector(*this, &showStateInspector);
+			LUINT::GUI::DrawLuaStateInspector(name.c_str(), state, &showStateInspector);
 		}
 
 		if (showTerminal)
@@ -171,6 +184,19 @@ namespace LUINT::Machines
 				PushEvent("tick", uid, sol::lua_value(state, sol::lua_nil));
 				time_since_last_tick = 0;
 			}
+		}
+
+		switch (after_tick)
+		{
+			case(AfterTickAction::reboot):
+				Reboot();
+				after_tick = AfterTickAction::none;
+				break;
+
+			case(AfterTickAction::shutdown):
+				Shutdown();
+				after_tick = AfterTickAction::none;
+				break;
 		}
 	}
 
