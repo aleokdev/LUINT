@@ -22,22 +22,36 @@ namespace LUINT
 		proxy_table.set_function("fill", &PTMMonitor::f_fill, this);
 	}
 
-	void Machines::PTMMonitor::f_set(std::string str, int x, int y)
+	void Machines::PTMMonitor::f_set(sol::this_state s, std::string str, int x, int y)
 	{
+		if (!network->has_state(s))
+			return;
+
 		if (x <= 0 || x > width || y <= 0 || y > height || str.length() == 0)
 			return;
 
 		rows[y - 1][x - 1] = str[0];
 	}
 
-	void Machines::PTMMonitor::f_fill(std::string str, int x, int y, int w, int h)
+	void Machines::PTMMonitor::f_fill(sol::this_state s, std::string str, int x, int y, int w, int h)
 	{
-		if (x <= 0 || x > width || y <= 0 || y > height || str.length() == 0 ||
-			w <= 0 || h <= 0 || x + w > width+1 || y + h > height+1)
+		if (!network->has_state(s))
 			return;
 
-		for(int ix = x; ix < x + w; ix++)
-			for(int iy = y; iy < y + h; iy++)
-				rows[iy - 1][ix - 1] = str[0];
+		if (str.length() == 0)
+			return;
+
+		Fill(str[0], x, y, w, h);
+	}
+
+	void Machines::PTMMonitor::Fill(char c, int x, int y, int w, int h)
+	{
+		if (x <= 0 || x > width || y <= 0 || y > height ||
+			w <= 0 || h <= 0 || x + w > width + 1 || y + h > height + 1)
+			return;
+
+		for (int ix = x; ix < x + w; ix++)
+			for (int iy = y; iy < y + h; iy++)
+				rows[iy - 1][ix - 1] = c;
 	}
 }

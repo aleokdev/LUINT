@@ -65,9 +65,10 @@ namespace LUINT::Machines
 		virtual const MachineInfo& get_info() = 0;
 
 	protected:
-		virtual void RenderChildWindows() {};
+		virtual void RenderChildWindows() {}
 		virtual void RenderWindow();
 		virtual void RenderMenuItems() {}
+		virtual void OnChangeNetwork(Network* prev, Network* next) {}
 
 		inline virtual std::string GetWindowName()
 		{

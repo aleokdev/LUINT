@@ -13,6 +13,7 @@ namespace LUINT::Machines
 	Machine::Machine(Data::SessionData& _session, std::string _name, Network* _network) : session(&_session), name(_name), uid(UID::generate()), network(_network)
 	{
 		network->add_machine(this);
+		OnChangeNetwork(nullptr, network);
 	}
 
 	Machine::~Machine()
@@ -121,7 +122,12 @@ namespace LUINT::Machines
 					}
 					else
 					{
-						// Place this machine in the network being connected
+						// Switch network to new one
+						network->remove_machine(this);
+						session->connecting->add_machine(this);
+
+						OnChangeNetwork(network, session->connecting);
+
 						network = session->connecting;
 						session->connecting->add_machine(this);
 						session->connecting = nullptr;

@@ -16,7 +16,7 @@ namespace LUINT::Machines
 				rows[i][width] = '\0';
 			}
 
-			f_fill(" ", 1, 1, width, height);
+			Fill(' ', 1, 1, width, height);
 		}
 
 		~PTMMonitor()
@@ -39,8 +39,9 @@ namespace LUINT::Machines
 		ImGuiWindowFlags GetWindowFlags() override { return ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize; }
 
 	private:
-		void f_set(std::string str, int x, int y);
-		void f_fill(std::string str, int x, int y, int w, int h);
+		void f_set(sol::this_state s, std::string str, int x, int y);
+		void f_fill(sol::this_state s, std::string str, int x, int y, int w, int h);
+		void Fill(char c, int x, int y, int w, int h);
 
 		unsigned int width = 90;
 		unsigned int height = 40;

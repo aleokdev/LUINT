@@ -25,8 +25,12 @@ namespace LUINT
 		}
 		lel::observable<std::string, UID, sol::lua_value> OnEvent;
 		const std::vector<Machines::Machine*>& get_machines() { return machines; }
-		void add_machine(Machines::Machine* m);
-		void remove_machine(Machines::Machine* m);
+		bool is_connected(Machines::Machine*);
+		void add_machine(Machines::Machine*);
+		void add_state(lua_State*);
+		bool has_state(lua_State*);
+		void remove_state(lua_State*);
+		void remove_machine(Machines::Machine*);
 		UID uid = UID::generate();
 
 		void try_set_default_lua_state(lua_State* s)
@@ -39,6 +43,7 @@ namespace LUINT
 
 	private:
 		std::vector<Machines::Machine*> machines;
+		std::vector<lua_State*> states;
 		lua_State* default_lua_state = nullptr;
 	};
 }

@@ -12,8 +12,6 @@ namespace LUINT::Machines
 {
 	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network)
 	{
-		network->OnEvent += [this](std::string name, UID sender, sol::lua_value parameters) { PushEvent(name, sender, parameters); };
-
 		Setup();
 	}
 
@@ -22,10 +20,12 @@ namespace LUINT::Machines
 		if (state)
 		{
 			network->try_set_default_lua_state(nullptr);
+			network->remove_state(state);
 			lua_close(state);
 		}
 		state = luaL_newstate();
 		network->try_set_default_lua_state(state);
+		network->add_state(state);
 
 		sol::state_view lua(state);
 
@@ -193,6 +193,18 @@ namespace LUINT::Machines
 			ImGui::MenuItem("Terminal", NULL, &showTerminal);
 			ImGui::EndMenu();
 		}
+	}
+
+	void ProcessingUnit::OnChangeNetwork(Network* prev, Network* next)
+	{
+		if (prev)
+		{
+			prev->OnEvent.remove_observer(uid);
+			next->remove_state(state);
+		}
+		next->OnEvent.add_observer(uid, [this](std::string s, UID u, sol::lua_value v) { PushEvent(s, u, v); });
+		next->add_state(state);
+		next->try_set_default_lua_state(state);
 	}
 
 	void ProcessingUnit::RenderChildWindows()

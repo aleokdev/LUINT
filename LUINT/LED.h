@@ -19,13 +19,19 @@ namespace LUINT::Machines
 			}
 		};
 
-		inline void f_set_state(bool new_state)
+		inline void f_set_state(sol::this_state s, bool new_state)
 		{
+			if (!network->has_state(s.L))
+				return;
+
 			turnedOn = new_state;
 		}
 
-		inline bool f_get_state()
+		inline bool f_get_state(sol::this_state s)
 		{
+			if (!network->has_state(s.L))
+				return false;
+
 			return turnedOn;
 		}
 

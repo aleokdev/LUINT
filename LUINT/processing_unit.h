@@ -5,6 +5,7 @@
 #include <queue>
 #include <tuple>
 #include <unordered_map>
+#include <functional>
 
 namespace LUINT::Machines
 {
@@ -31,6 +32,7 @@ namespace LUINT::Machines
 		void RenderWindow() override;
 		void RenderChildWindows() override;
 		void RenderMenuItems() override;
+		virtual void OnChangeNetwork(Network* prev, Network* next) override;
 
 		void RenderTerminal();
 
