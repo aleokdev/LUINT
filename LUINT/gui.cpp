@@ -5,7 +5,6 @@
 #include <string>
 #include <sstream>
 #include "machine.h"
-#include "state_machine.h"
 #include "hostdata.h"
 #include "luainterface.h"
 #include "network.h"
@@ -88,11 +87,11 @@ void LUINT::GUI::DrawLuaStateInspector(lua_State * state, bool* p_open)
 	ImGui::End();
 }
 
-void LUINT::GUI::DrawLuaStateInspector(LUINT::Machines::StateMachine& machine, bool* p_open)
+void LUINT::GUI::DrawLuaStateInspector(const char* name, lua_State* state, bool* p_open)
 {
 	char buf[64];
-	sprintf_s(buf, 64, "State Inspector of %s###s%s", machine.name.c_str(), machine.uid.as_string().c_str());
-	if (!ImGui::Begin(buf, p_open, 0))
+	sprintf_s(buf, 64, "State Inspector of %s", name);
+	if (!ImGui::Begin("State Inspector", p_open))
 	{
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
@@ -101,8 +100,8 @@ void LUINT::GUI::DrawLuaStateInspector(LUINT::Machines::StateMachine& machine, b
 
 	if (ImGui::CollapsingHeader("GLOBALS"))
 	{
-		lua_pushglobaltable(machine.get_state());
-		drawLuaStateInspectorTable(machine.get_state());
+		lua_pushglobaltable(state);
+		drawLuaStateInspectorTable(state);
 	}
 
 	ImGui::End();
@@ -269,38 +268,63 @@ void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open
 				ImGui::TextWrapped(encapsulated_getallmachineinfo::info_selected->interface.description);
 				ImGui::PopStyleColor();
 				ImGui::Separator();
-				for (const LUINT::Machines::LuaInterfaceFunction& function : encapsulated_getallmachineinfo::info_selected->interface.functions)
-				{
-					ImGui::Text("function %s(", function.name);
-					for (int i = 0; i < function.arguments.size(); i++)
+				if (encapsulated_getallmachineinfo::info_selected->interface.functions.size() == 0)
+					ImGui::TextDisabled("No functions defined.");
+				else
+					for (const LUINT::Machines::LuaInterfaceFunction& function : encapsulated_getallmachineinfo::info_selected->interface.functions)
 					{
-						ImGui::SameLine();
-						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.9f, 0.6f, 1));
-						ImGui::TextUnformatted(function.arguments[i].name);
-						ImGui::PopStyleColor();
-						if (i != function.arguments.size() - 1)
+						ImGui::Text("function %s(", function.name);
+						for (int i = 0; i < function.arguments.size(); i++)
 						{
 							ImGui::SameLine();
-							ImGui::TextUnformatted(",");
+							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.9f, 0.6f, 1));
+							ImGui::TextUnformatted(function.arguments[i].name);
+							ImGui::PopStyleColor();
+							if (i != function.arguments.size() - 1)
+							{
+								ImGui::SameLine();
+								ImGui::TextUnformatted(",");
+							}
 						}
+						ImGui::SameLine();
+						ImGui::TextUnformatted(")");
+
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.9f, 0.9f, 1));
+						ImGui::TextUnformatted("->");
+						ImGui::SameLine();
+						ImGui::PopStyleColor();
+						ImGui::Indent();
+						ImGui::TextWrapped(function.returns);
+						ImGui::Unindent();
+
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.8f, 1));
+						ImGui::Indent();
+						ImGui::TextWrapped(function.description);
+						ImGui::Unindent();
+						ImGui::PopStyleColor();
 					}
-					ImGui::SameLine();
-					ImGui::TextUnformatted(")");
+				ImGui::Separator();
+				if (encapsulated_getallmachineinfo::info_selected->interface.events_sent.size() == 0)
+					ImGui::TextDisabled("No events defined.");
+				else
+					for (const auto& event : encapsulated_getallmachineinfo::info_selected->interface.events_sent)
+					{
+						ImGui::Text("event \"%s\"", event.name);
 
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.9f, 0.9f, 1));
-					ImGui::TextUnformatted("->");
-					ImGui::SameLine();
-					ImGui::PopStyleColor();
-					ImGui::Indent();
-					ImGui::TextWrapped(function.returns);
-					ImGui::Unindent();
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.9f, 0.9f, 1));
+						ImGui::TextUnformatted("->");
+						ImGui::SameLine();
+						ImGui::PopStyleColor();
+						ImGui::Indent();
+						ImGui::TextWrapped(event.type);
+						ImGui::Unindent();
 
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.8f, 1));
-					ImGui::Indent();
-					ImGui::TextWrapped(function.description);
-					ImGui::Unindent();
-					ImGui::PopStyleColor();
-				}
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.8f, 1));
+						ImGui::Indent();
+						ImGui::TextWrapped(event.description);
+						ImGui::Unindent();
+						ImGui::PopStyleColor();
+					}
 
 				ImGui::EndTabItem();
 			}

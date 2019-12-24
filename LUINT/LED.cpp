@@ -2,7 +2,7 @@
 
 namespace LUINT::Machines
 {
-	void LED::ImplementLua(lua_State * state, sol::table&& proxy_table)
+	void LED::ImplementLua(lua_State * state, sol::table& proxy_table)
 	{
 		sol::state_view lua(state);
 

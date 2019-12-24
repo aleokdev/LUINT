@@ -71,9 +71,6 @@
     <ClInclude Include="hostdata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="machine_list.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="luainterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -104,14 +101,14 @@
     <ClInclude Include="LED.h">
       <Filter>Header Files\machines</Filter>
     </ClInclude>
-    <ClInclude Include="state_machine.h">
-      <Filter>Header Files\machines</Filter>
-    </ClInclude>
     <ClInclude Include="all_machines.h">
       <Filter>Header Files\machines</Filter>
     </ClInclude>
     <ClInclude Include="ptm_monitor.h">
       <Filter>Header Files\machines</Filter>
+    </ClInclude>
+    <ClInclude Include="machine_list.tpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

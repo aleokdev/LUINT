@@ -3,7 +3,7 @@
 #include "UID.h"
 #include <vector>
 #include <imgui.h> // For ImVec2
-#include "machine_list.h"
+#include "machine_list.tpp"
 #include "luainterface.h"
 #include "sol.hpp"
 #include "network.h"
@@ -57,7 +57,7 @@ namespace LUINT::Machines
 		virtual void OnConnect(Machine& other) {}
 		virtual void OnDisconnect(Machine& other) {}
 
-		virtual void ImplementLua(lua_State* state, sol::table&& proxy_table) {};
+		virtual void ImplementLua(lua_State* state, sol::table& proxy_table) {};
 
 		// The MachineInfo of every machine acts as a "static unique identifier" for every machine.
 		inline static const MachineInfo static_info = MachineInfo{ "Machine", "aleok studios", "You shouldn't be seeing this." };

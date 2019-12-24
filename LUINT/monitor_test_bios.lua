@@ -13,17 +13,18 @@ function main()
 	local function pull()
 		repeat
 			coroutine.yield()
-		until latest_event[0] ~= "tick"
+		until latest_event[1] ~= "tick"
 
 		return table.unpack(latest_event)
 	end
 
 	local screen = nil
 	local uid = nil
-	for k, v in pairs(computer.connections) do
-		if v.name == "PTM Monitor" then
-			screen = v
-			uid = k
+	for _, address in pairs(computer.get_connections()) do
+		local proxy = computer.proxy(address)
+		if proxy.name == "PTM Monitor" then
+			screen = proxy
+			uid = address
 			break
 		end
 	end
@@ -45,6 +46,7 @@ function main()
 
 	local i = 1
 	local dir = 1
+	screen.write("Latest event not tick: <nil>", 1, 4)
 	repeat
 		screen.fill(" ", 1, 3, 40, 1)
 		screen.write("Hello world!", i, 3)
@@ -55,6 +57,9 @@ function main()
 			dir = 1
 		end
 		coroutine.yield()
+		if latest_event[1] ~= "tick" then
+			screen.write("Latest event not tick: "..latest_event[1], 1, 4)
+		end
 	until false
 end
 
