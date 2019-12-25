@@ -6,12 +6,14 @@
 #include <tuple>
 #include <unordered_map>
 #include <functional>
+#include "network.h"
 
 namespace LUINT::Machines
 {
 	struct ProcessingUnit : public Machine
 	{
 		ProcessingUnit(LUINT::Data::SessionData& _session, std::string _name, Network* _network);
+		~ProcessingUnit();
 
 		// Call before Startup(). Setups functions, tables, etc.
 		void Setup();
@@ -24,7 +26,7 @@ namespace LUINT::Machines
 		void OnConnect(Machine& other) override;
 		void OnDisconnect(Machine& other) override;
 
-		void PushEvent(std::string name, UID sender, sol::lua_value parameters);
+		void PushEvent(Network::Event);
 
 		GENERATE_MACHINEINFO(ProcessingUnit, (MachineInfo{ "Processing Unit", "aleok studios", "Controllable machine that accepts input and can process user-given commands.", Interfaces::get_LUINTProcessor() }));
 
@@ -40,7 +42,6 @@ namespace LUINT::Machines
 
 		int f_ticks() { return ticks_since_startup; }
 		sol::table GetNetworkUIDs();
-		sol::table GetProxy(std::string);
 
 	private:
 		lua_State* state = nullptr;
@@ -49,9 +50,7 @@ namespace LUINT::Machines
 		const int terminalBufferSize = 128;
 		char terminalBuffer[128] = "";
 		std::vector<std::string> terminalLog;
-		std::unordered_map<std::string, sol::table> proxies;
-		std::queue<std::tuple<std::string, UID, sol::lua_value>> eventQueue;
-		sol::basic_table_core<true, sol::reference>* impl_table;
+		std::queue<Network::Event> eventQueue;
 		std::unique_ptr<sol::coroutine> main_coroutine;
 		bool is_on = false;
 		// How often is the "tick" event sent to the processor, approximately.

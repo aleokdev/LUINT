@@ -57,12 +57,12 @@ namespace LUINT::Machines
 		virtual void OnConnect(Machine& other) {}
 		virtual void OnDisconnect(Machine& other) {}
 
-		virtual void ImplementLua(lua_State* state, sol::table& proxy_table) {};
-
 		// The MachineInfo of every machine acts as a "static unique identifier" for every machine.
 		inline static const MachineInfo static_info = MachineInfo{ "Machine", "aleok studios", "You shouldn't be seeing this." };
 
 		virtual const MachineInfo& get_info() = 0;
+
+		bool ShouldDelete() { return v_shouldDelete; }
 
 	protected:
 		virtual void RenderChildWindows() {}
@@ -84,6 +84,7 @@ namespace LUINT::Machines
 		bool showMachineInfo = false;
 		bool editingName = false;
 		bool showCannotConnectToItselfTooltip = false;
+		bool v_shouldDelete = false;
 
 		ImVec2 windowPos;
 		ImVec2 windowSize;

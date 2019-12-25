@@ -12,7 +12,7 @@ namespace LUINT
 	UID::UID(std::size_t _hash) : hash(_hash)
 	{}
 
-	std::string UID::as_string(const char* format)
+	std::string UID::as_string(const char* format) const
 	{
 		char buf[32];
 		sprintf_s(buf, 32, format, hash);

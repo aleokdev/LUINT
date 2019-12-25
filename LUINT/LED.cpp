@@ -2,12 +2,32 @@
 
 namespace LUINT::Machines
 {
-	void LED::ImplementLua(lua_State * state, sol::table& proxy_table)
+	void LED::OnChangeNetwork(Network* before, Network* next)
 	{
-		sol::state_view lua(state);
+		if (before)
+		{
+			before->OnEvent.remove_observer(uid);
+		}
 
-		proxy_table.set_function("set_state", &LED::f_set_state, this);
-		proxy_table.set_function("get_state", &LED::f_get_state, this);
+		next->OnEvent.add_observer(uid, [this](Network::Event e) { ProcessEvent(e); });
+	}
+
+	void LED::ProcessEvent(Network::Event e)
+	{
+		if (e.name == "get_state")
+		{
+			network->SendEvent(e.sender_uid, e.name, uid, std::vector<sol::object> { sol::make_object(e.state, turnedOn) });
+		}
+		else if (e.name == "set_state")
+		{
+			if (e.args.size() != 1)
+				return;
+
+			if (!e.args[0].is<bool>())
+				return;
+
+			turnedOn = e.args[0].as<bool>();
+		}
 	}
 
 	void LED::RenderWindow()

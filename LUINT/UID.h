@@ -18,7 +18,7 @@ namespace LUINT
 	{
 		static UID generate();
 
-		std::string as_string(const char* format = "{%08x}");
+		std::string as_string(const char* format = "{%08x}") const;
 
 		UID() = delete;
 		~UID() = default;

@@ -13,7 +13,6 @@ namespace LUINT::Machines
 	Machine::Machine(Data::SessionData& _session, std::string _name, Network* _network) : session(&_session), name(_name), uid(UID::generate()), network(_network)
 	{
 		network->add_machine(this);
-		OnChangeNetwork(nullptr, network);
 	}
 
 	Machine::~Machine()
@@ -65,7 +64,7 @@ namespace LUINT::Machines
 			ImGui::Text("UID: %s", uid.as_string().c_str());
 			ImGui::Text("Lua version: %s", LUA_VERSION);
 			if(network)
-				ImGui::Text("Connected Network UID: %s", network->uid.as_string().c_str());
+				ImGui::Text("Connected Network UID: %s", network->get_uid().as_string().c_str());
 			else
 				ImGui::TextUnformatted("Connected Network UID: <nil>");
 		}
@@ -84,12 +83,16 @@ namespace LUINT::Machines
 		char buf[MAX_MACHINENAME_LENGTH + 32];
 		sprintf_s(buf, MAX_MACHINENAME_LENGTH + 32, "%s###m%s", GetWindowName().c_str(), uid.as_string().c_str()); // Use ### to have an unique identifier (even when the machine changes its name)
 
-		if (!ImGui::Begin(buf, nullptr, GetWindowFlags()))
+		bool p_open = true;
+		if (!ImGui::Begin(buf, &p_open, GetWindowFlags()))
 		{
 			// Early out if the window is collapsed, as an optimization.
 			ImGui::End();
 			return;
 		}
+
+		if (!p_open)
+			v_shouldDelete = true;
 
 		windowPos = ImGui::GetWindowPos();
 		windowSize = ImGui::GetWindowSize();

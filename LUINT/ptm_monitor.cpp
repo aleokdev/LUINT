@@ -14,34 +14,52 @@ namespace LUINT
 		ImGui::SetWindowSize(ImGui::GetContentRegionAvail(), ImGuiCond_Appearing);
 	}
 
-	void Machines::PTMMonitor::ImplementLua(lua_State * state, sol::table & proxy_table)
+	void Machines::PTMMonitor::OnChangeNetwork(Network* before, Network* next)
 	{
-		sol::state_view lua(state);
+		if (before)
+		{
+			before->OnEvent.remove_observer(uid);
+		}
 
-		proxy_table.set_function("set", &PTMMonitor::f_set, this);
-		proxy_table.set_function("fill", &PTMMonitor::f_fill, this);
+		next->OnEvent.add_observer(uid, [this](Network::Event e) { ProcessEvent(e); });
 	}
 
-	void Machines::PTMMonitor::f_set(sol::this_state s, std::string str, int x, int y)
+	void Machines::PTMMonitor::ProcessEvent(Network::Event e)
 	{
-		if (!network->has_state(s))
-			return;
+		if (e.name == "set")
+		{
+			if (e.args.size() != 3)
+				return;
 
-		if (x <= 0 || x > width || y <= 0 || y > height || str.length() == 0)
-			return;
+			if (!e.args[0].is<std::string>() || !e.args[1].is<int>() || !e.args[2].is<int>())
+				return;
 
-		rows[y - 1][x - 1] = str[0];
+			if (e.args[0].as<std::string>().size() == 0)
+				return;
+
+			Set(e.args[0].as<std::string>()[0], e.args[1].as<int>(), e.args[2].as<int>());
+		}
+		else if (e.name == "fill")
+		{
+			if (e.args.size() != 5)
+				return;
+
+			if (!e.args[0].is<std::string>() || !e.args[1].is<int>() || !e.args[2].is<int>() || !e.args[3].is<int>() || !e.args[4].is<int>())
+				return;
+
+			if (e.args[0].as<std::string>().size() == 0)
+				return;
+
+			Fill(e.args[0].as<std::string>()[0], e.args[1].as<int>(), e.args[2].as<int>(), e.args[3].as<int>(), e.args[4].as<int>());
+		}
 	}
 
-	void Machines::PTMMonitor::f_fill(sol::this_state s, std::string str, int x, int y, int w, int h)
+	void Machines::PTMMonitor::Set(char c, int x, int y)
 	{
-		if (!network->has_state(s))
+		if (x <= 0 || x > width || y <= 0 || y > height)
 			return;
 
-		if (str.length() == 0)
-			return;
-
-		Fill(str[0], x, y, w, h);
+		rows[y - 1][x - 1] = c;
 	}
 
 	void Machines::PTMMonitor::Fill(char c, int x, int y, int w, int h)
