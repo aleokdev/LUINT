@@ -58,37 +58,47 @@ namespace LUINT::Machines
 					"ticks [int]"
 				},
 				{
-					"get_info",
-					"Returns a table with information about a connected machine or about the local processor.\n"
-					"Run without arguments to get info about the local machine.",
-					"info [table {"
-						"name [string], description [string], interface [table {"
-							"name [string], description [string], functions [table {name [string], description [string], args [table {name [string]}]}]"
-					"} ]} ]",
-					std::vector<LuaInterfaceFunction::Argument> { {"[UID]"} }
+					"get_connection_interface",
+					"Returns a table with information about a connected machine's interface.",
+					"{ name = interface_name, description = interface_description }",
+					std::vector<LuaInterfaceFunction::Argument> { {"UID"} }
 				},
 				{
 					"shutdown",
-					"Turns off the processor. Not recommended to use raw, since the machine will be turned off inmediately. It is recommended to wrap "
+					"Turns off the processor. Not recommended to use raw, since the machine will be turned off just after the current tick. It is recommended to wrap "
 					"this function to push an event when it is called.",
 					"nil"
 				},
 				{
 					"reboot",
-					"Turns off and on the processor. Not recommended to use raw, since the machine will be turned off inmediately. It is recommended to wrap "
+					"Turns off and on the processor. Not recommended to use raw, since the machine will be turned off just after the current tick. It is recommended to wrap "
 					"this function to push an event when it is called.",
 					"nil"
 				},
 				{
-					"push_signal",
-					"Pushes a signal to the signal queue, that will be processed in FIFO order when pull_signal is called.",
+					"push",
+					"Pushes an event to the event queue, that will be processed in FIFO order when the machine's coroutine is executed.",
 					"nil",
 					std::vector<LuaInterfaceFunction::Argument> { {"name"}, {"args..."} }
 				},
 				{
-					"pull_signal",
-					"Pulls a signal from the signal queue. Older signals will be processed first.",
-					"signal_name, args..."
+					"push",
+					"Pushes an event to the event queue, that will be processed in FIFO order when the machine's coroutine is executed.",
+					"nil",
+					std::vector<LuaInterfaceFunction::Argument> { {"name"}, {"args..."} }
+				},
+				{
+					"broadcast_packet",
+					"Sends a packet (event) through the whole network.",
+					"nil",
+					std::vector<LuaInterfaceFunction::Argument> { {"packet_name"}, {"data..."} }
+				},
+				{
+					"send_packet",
+					"Sends a packet (event) to a specific machine with a given UID in the current network. Returns true if the machine's "
+					"UID was found in the network (and thus the packet was sent correctly), and false if not.",
+					"bool",
+					std::vector<LuaInterfaceFunction::Argument> { {"packet_name"}, {"UID"}, {"data..."} }
 				}
 			};
 

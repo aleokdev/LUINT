@@ -45,8 +45,12 @@ namespace LUINT::Machines
 		{ PushEvent(Network::Event{ event_name, uid, std::vector<sol::object>(params.begin(), params.end()) }); });
 
 		t.set_function("get_connections", &ProcessingUnit::GetNetworkUIDs, this);
-		t.set_function("send_packet", [this](std::string packet_name, sol::variadic_args params)
+		t.set_function("broadcast_packet", [this](std::string packet_name, sol::variadic_args params)
 		{ network->BroadcastEvent(packet_name, uid, std::vector<sol::object>(params.begin(), params.end()), state); });
+		t.set_function("send_packet", [this](std::string packet_name, std::string uid_str, sol::variadic_args params)
+		{
+			network->SendEvent(UID(std::stoul(uid_str, 0, 16)), packet_name, uid, std::vector<sol::object>(params.begin(), params.end()), state);
+		});
 		t.set_function("get_connection_interface", [this](std::string uidstr, sol::this_state s)
 		{
 			for (auto& connection : network->get_machines())
