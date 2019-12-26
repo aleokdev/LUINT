@@ -8,7 +8,9 @@ Machines always are inside *networks*. When networks have more than one machine 
 
 Processing Units work with *events*. Events are, literally, exactly equal to packets. The only difference between "events" and "packets" is that when talking of events we're normally referring to data that the Processing Unit sends to itself or data from another machine that was sent without a packet to receive it (Data that was sent without asking, basically).
 
-Processing Units run at around 20 ticks per second, which means that they have to "sleep" or yield 20 ticks per second. They can't execute continuously: They have to allow for the rest of the program and machines to work. If a Processing Unit takes too much to yield, it might freeze the program (or at least, for now).
+Processing Units run at around 20 ticks per second*, which means that they have to "sleep" or yield 20 ticks per second. They can't execute continuously: They have to allow for the rest of the program and machines to work. If a Processing Unit takes too much to yield, it might freeze the program (or at least, for now).
+
+\*running at 20 ticks per second *doesn't mean* that the main coroutine of the machine is run 20 times per second. It just means that the "tick" event along with other events are sent 20 times per second to the machine.
 
 ## Machines
 As of version 0.1, there are 5 machines available:
