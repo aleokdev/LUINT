@@ -12,20 +12,25 @@ namespace LUINT::Machines
 {
 	ProcessingUnit::ProcessingUnit(Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network)
 	{
-		network->OnEvent += [this](std::string name, UID sender, sol::lua_value parameters) { PushEvent(name, sender, parameters); };
-
 		Setup();
+		OnChangeNetwork(nullptr, network);
+	}
+
+	ProcessingUnit::~ProcessingUnit()
+	{
+		main_coroutine.release();
+		while (!eventQueue.empty())
+			eventQueue.pop();
+		lua_close(state);
 	}
 
 	void ProcessingUnit::Setup()
 	{
 		if (state)
 		{
-			network->try_set_default_lua_state(nullptr);
 			lua_close(state);
 		}
 		state = luaL_newstate();
-		network->try_set_default_lua_state(state);
 
 		sol::state_view lua(state);
 
@@ -36,9 +41,25 @@ namespace LUINT::Machines
 		t.set_function("ticks", &ProcessingUnit::f_ticks, this);
 		t.set_function("shutdown", [this]() { after_tick = AfterTickAction::shutdown; });
 		t.set_function("reboot", [this]() { after_tick = AfterTickAction::reboot; });
-		t.set_function("push", [this](std::string event_name, sol::table params) { PushEvent(event_name, uid, params); });
+		t.set_function("push", [this](std::string event_name, sol::variadic_args params)
+		{ PushEvent(Network::Event{ event_name, uid, std::vector<sol::object>(params.begin(), params.end()) }); });
+
 		t.set_function("get_connections", &ProcessingUnit::GetNetworkUIDs, this);
-		t.set_function("proxy", &ProcessingUnit::GetProxy, this);
+		t.set_function("send_packet", [this](std::string packet_name, sol::variadic_args params)
+		{ network->BroadcastEvent(packet_name, uid, std::vector<sol::object>(params.begin(), params.end()), state); });
+		t.set_function("get_connection_interface", [this](std::string uidstr, sol::this_state s)
+		{
+			for (auto& connection : network->get_machines())
+			{
+				if (connection->uid.as_string("%08x") == uidstr)
+					return sol::state_view(s).create_table_with(
+						"name", connection->get_info().interface.name,
+						"description", connection->get_info().interface.description
+						);
+			}
+		}
+		);
+		//t.set_function("proxy", &ProcessingUnit::GetProxy, this);
 	}
 
 	sol::table ProcessingUnit::GetNetworkUIDs()
@@ -55,14 +76,6 @@ namespace LUINT::Machines
 		}
 
 		return retval;
-	}
-
-	sol::table ProcessingUnit::GetProxy(std::string uid)
-	{
-		if (proxies.find(uid) == proxies.end())
-			return sol::nil;
-
-		return proxies[uid];
 	}
 
 	void ProcessingUnit::ReconnectAll()
@@ -94,7 +107,7 @@ namespace LUINT::Machines
 		main_coroutine = std::make_unique<sol::coroutine>(lua["main"]);
 		is_on = true;
 		ticks_since_startup = 0;
-		PushEvent("startup", uid, sol::lua_value(lua, sol::lua_nil));
+		PushEvent(Network::Event{ "startup", uid, std::vector<sol::object> { sol::make_object(lua, sol::lua_nil) } });
 	}
 
 	void ProcessingUnit::Shutdown()
@@ -116,42 +129,24 @@ namespace LUINT::Machines
 	void ProcessingUnit::OnConnect(Machine & other)
 	{
 		sol::state_view lua(state);
-		std::cout << "adding\n";
-		std::string otherUID = other.uid.as_string("%08x");
-		sol::table proxy = lua.create_table_with(
-			"uid", otherUID,
-			"name", other.name,
-			"type", lua.create_table_with(
-				"name", other.get_info().name,
-				"description", other.get_info().description,
-				"manufacturer", other.get_info().manufacturer,
-				"interface", lua.create_table_with(
-					"name", other.get_info().interface.name,
-					"description", other.get_info().interface.description
-				)
-			)
-		);
-		other.ImplementLua(state, proxy);
-		proxies.emplace(otherUID, proxy);
-
 		if(is_on)
-			PushEvent("on_connect", uid, lua.create_table_with(1, otherUID));
+			PushEvent(Network::Event{ "on_connect", uid, std::vector<sol::object> { sol::make_object(lua, other.uid.as_string("%08x")) } });
 	}
 
 	void ProcessingUnit::OnDisconnect(Machine & other)
 	{
+		sol::state_view lua(state);
+		if (is_on)
+			PushEvent(Network::Event{ "on_disconnect", uid, std::vector<sol::object> { sol::make_object(lua, other.uid.as_string("%08x")) } });
 	}
 
-	void ProcessingUnit::PushEvent(std::string name, UID sender, sol::lua_value parameters)
+	void ProcessingUnit::PushEvent(Network::Event e)
 	{
 		if (!is_on)
 			return;
 
-		sol::state_view lua(state);
-
 		//std::cout << "pushing event named " << name << "\n";
-		// First, push the event to latest_event
-		eventQueue.push({ name, sender, parameters });
+		eventQueue.push(e);
 	}
 
 	void ProcessingUnit::Tick()
@@ -161,7 +156,7 @@ namespace LUINT::Machines
 		{
 			auto event = eventQueue.front();
 			eventQueue.pop();
-			lua[sol::create_if_nil]["latest_event"] = lua.create_table_with(1, std::get<0>(event), 2, std::get<1>(event).as_string("%08x").c_str(), 3, std::get<2>(event));
+			lua[sol::create_if_nil]["latest_event"] = lua.create_table_with(1, event.name, 2, event.sender_uid, 3, event.args);
 			auto result = (*main_coroutine)(); // Continue executing the main coroutine
 
 			if (!main_coroutine->runnable())
@@ -185,7 +180,7 @@ namespace LUINT::Machines
 			Startup();
 
 		if (ImGui::MenuItem("Send signal") && is_on)
-			PushEvent("test", uid, lua.create_table_with(1, "this is a test parameter"));
+			PushEvent(Network::Event{ "test", uid, std::vector<sol::object>{ sol::make_object(lua, "this is a test parameter")} });
 
 		if (ImGui::BeginMenu("Debug"))
 		{
@@ -193,6 +188,15 @@ namespace LUINT::Machines
 			ImGui::MenuItem("Terminal", NULL, &showTerminal);
 			ImGui::EndMenu();
 		}
+	}
+
+	void ProcessingUnit::OnChangeNetwork(Network* prev, Network* next)
+	{
+		if (prev)
+		{
+			prev->OnEvent.remove_observer(uid);
+		}
+		next->OnEvent.add_observer(uid, [this](Network::Event e) { PushEvent(e); });
 	}
 
 	void ProcessingUnit::RenderChildWindows()
@@ -219,7 +223,7 @@ namespace LUINT::Machines
 			if (time_since_last_tick > 1.f / ticks_per_second)
 			{
 				ticks_since_startup++;
-				PushEvent("tick", uid, sol::lua_value(state, sol::lua_nil));
+				PushEvent(Network::Event{ "tick", uid, std::vector<sol::object>{sol::make_object(state, sol::lua_nil)} });
 				Tick();
 				time_since_last_tick = 0;
 			}

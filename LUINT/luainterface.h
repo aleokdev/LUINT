@@ -169,5 +169,39 @@ namespace LUINT::Machines
 
 			return result;
 		}
+
+		inline LuaInterface get_PTMMonitor()
+		{
+			LuaInterface result;
+
+			result.name = "Persistent Text Monitor";
+			result.description = "Contains functions that set or get characters from the screen.";
+			result.functions = std::vector<LuaInterfaceFunction>
+			{
+				{
+					"set",
+					"Sets a character on the screen. The coordinates go from {1,1} to {max_res.width, max_res.height}.\n"
+					"Sets only ONE character. If a string with multiple characters is given, only the first char will be set "
+					"and the other ones will be ignored. If X or Y don't belong inside the screen resolution, the monitor will "
+					"not do anything.",
+					"nil",
+					std::vector<LuaInterfaceFunction::Argument> { {"char"}, {"x"}, {"y"} }
+				},
+				{
+					"fill",
+					"Fills a given portion of the screen with a certain character. The coordinates go from {1,1} to {max_res.width, max_res.height}.\n"
+					"Sets only ONE character. If a string with multiple characters is given, only the first char will be set "
+					"and the other ones will be ignored.\n"
+					"X and Y specify the position of the portion, and W and H specify the width and height, respectively. "
+					"If X or Y don't belong inside the screen resolution, the monitor will "
+					"not do anything.\n"
+					"If X+W or Y+H don't belong inside the screen resolution, the behaviour will depend on the interface implementation.",
+					"nil",
+					std::vector<LuaInterfaceFunction::Argument> { {"char"}, {"x"}, {"y"}, {"w"}, {"h"} }
+				}
+			};
+
+			return result;
+		}
 	}
 }

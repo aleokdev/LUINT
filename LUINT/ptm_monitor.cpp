@@ -14,30 +14,62 @@ namespace LUINT
 		ImGui::SetWindowSize(ImGui::GetContentRegionAvail(), ImGuiCond_Appearing);
 	}
 
-	void Machines::PTMMonitor::ImplementLua(lua_State * state, sol::table & proxy_table)
+	void Machines::PTMMonitor::OnChangeNetwork(Network* before, Network* next)
 	{
-		sol::state_view lua(state);
+		if (before)
+		{
+			before->OnEvent.remove_observer(uid);
+		}
 
-		proxy_table.set_function("set", &PTMMonitor::f_set, this);
-		proxy_table.set_function("fill", &PTMMonitor::f_fill, this);
+		next->OnEvent.add_observer(uid, [this](Network::Event e) { ProcessEvent(e); });
 	}
 
-	void Machines::PTMMonitor::f_set(std::string str, int x, int y)
+	void Machines::PTMMonitor::ProcessEvent(Network::Event e)
 	{
-		if (x <= 0 || x > width || y <= 0 || y > height || str.length() == 0)
-			return;
+		if (e.name == "set")
+		{
+			if (e.args.size() != 3)
+				return;
 
-		rows[y - 1][x - 1] = str[0];
+			if (!e.args[0].is<std::string>() || !e.args[1].is<int>() || !e.args[2].is<int>())
+				return;
+
+			if (e.args[0].as<std::string>().size() == 0)
+				return;
+
+			Set(e.args[0].as<std::string>()[0], e.args[1].as<int>(), e.args[2].as<int>());
+		}
+		else if (e.name == "fill")
+		{
+			if (e.args.size() != 5)
+				return;
+
+			if (!e.args[0].is<std::string>() || !e.args[1].is<int>() || !e.args[2].is<int>() || !e.args[3].is<int>() || !e.args[4].is<int>())
+				return;
+
+			if (e.args[0].as<std::string>().size() == 0)
+				return;
+
+			Fill(e.args[0].as<std::string>()[0], e.args[1].as<int>(), e.args[2].as<int>(), e.args[3].as<int>(), e.args[4].as<int>());
+		}
 	}
 
-	void Machines::PTMMonitor::f_fill(std::string str, int x, int y, int w, int h)
+	void Machines::PTMMonitor::Set(char c, int x, int y)
 	{
-		if (x <= 0 || x > width || y <= 0 || y > height || str.length() == 0 ||
-			w <= 0 || h <= 0 || x + w > width+1 || y + h > height+1)
+		if (x <= 0 || x > width || y <= 0 || y > height)
 			return;
 
-		for(int ix = x; ix < x + w; ix++)
-			for(int iy = y; iy < y + h; iy++)
-				rows[iy - 1][ix - 1] = str[0];
+		rows[y - 1][x - 1] = c;
+	}
+
+	void Machines::PTMMonitor::Fill(char c, int x, int y, int w, int h)
+	{
+		if (x <= 0 || x > width || y <= 0 || y > height ||
+			w <= 0 || h <= 0 || x + w > width + 1 || y + h > height + 1)
+			return;
+
+		for (int ix = x; ix < x + w; ix++)
+			for (int iy = y; iy < y + h; iy++)
+				rows[iy - 1][ix - 1] = c;
 	}
 }

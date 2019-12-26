@@ -2,31 +2,34 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include "UID.h"
 
 // LUINT extension library (lel)
 namespace lel
 {
+	using UID = LUINT::UID;
+
 	template<typename... Args>
 	struct observable
 	{
 		// Adds a function to the observable to call when operator() is executed.
-		inline void operator+=(std::function<void(Args...)> func)
+		inline void add_observer(UID& uid, std::function<void(Args...)> func)
 		{
-			observers.emplace_back(func);
+			observers.insert(std::pair<UID, std::function<void(Args...)>>(uid, func));
 		}
 
 		// Removes a function from the observable list so it doesn't get called when operator() is executed
-		inline void operator-=(std::function<void(Args...)> func)
+		inline void remove_observer(UID& uid)
 		{
-			observers.erase(std::remove(observers.begin(), observers.end(), func), observers.end());
+			observers.erase(uid);
 		}
 
 		void operator()(Args... args)
 		{
-			for (auto& observer : observers)
-				observer(args...);
+			for (const std::pair<UID, std::function<void(Args...)>>& pair : observers)
+				pair.second(args...);
 		}
 
-		std::vector<std::function<void(Args...)>> observers;
+		std::unordered_map<UID, std::function<void(Args...)>> observers;
 	};
 }

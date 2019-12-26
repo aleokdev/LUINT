@@ -3,6 +3,7 @@
 #include "sol.hpp"
 #include "UID.h"
 #include "lua.h"
+#include <unordered_map>
 
 namespace LUINT
 {
@@ -15,30 +16,36 @@ namespace LUINT
 	{
 		~Network() {}
 
-		template<typename... ValTy>
-		void SendEvent(std::string name, UID sender, ValTy... vals)
+		void BroadcastEvent(std::string name, UID sender, std::vector<sol::object> vals, lua_State* state = nullptr)
 		{
-			if (!default_lua_state)
-				return;
-
-			OnEvent(name, sender, sol::state_view(default_lua_state).create_table_with(vals...));
+			OnEvent(Event{ name, sender, vals, state });
 		}
-		lel::observable<std::string, UID, sol::lua_value> OnEvent;
+
+		void SendEvent(UID receiver, std::string name, UID sender, std::vector<sol::object> vals, lua_State* state = nullptr)
+		{
+			OnEvent.observers[receiver](Event{ name, sender, vals, state });
+		}
+
+		struct Event
+		{
+			std::string name;
+			UID sender_uid;
+			std::vector<sol::object> args;
+			lua_State* state;
+		};
+
+		lel::observable<Event> OnEvent;
+
 		const std::vector<Machines::Machine*>& get_machines() { return machines; }
-		void add_machine(Machines::Machine* m);
-		void remove_machine(Machines::Machine* m);
-		UID uid = UID::generate();
+		void add_machine(Machines::Machine*);
+		void remove_machine(Machines::Machine*);
+		bool is_connected(Machines::Machine*) const;
 
-		void try_set_default_lua_state(lua_State* s)
-		{
-			if (s == nullptr)
-				s = nullptr;
-			else if(!default_lua_state)
-				default_lua_state = s;
-		}
+		const UID& get_uid() const { return uid; }
 
 	private:
 		std::vector<Machines::Machine*> machines;
-		lua_State* default_lua_state = nullptr;
+		std::unordered_map<UID, void*> definitions;
+		UID uid = UID::generate();
 	};
 }

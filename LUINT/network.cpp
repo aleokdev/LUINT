@@ -4,6 +4,10 @@
 
 namespace LUINT
 {
+	bool Network::is_connected(Machines::Machine * m) const
+	{
+		return std::count(machines.begin(), machines.end(), m);
+	}
 	void Network::add_machine(Machines::Machine* m)
 	{
 		for (auto& machine : machines)

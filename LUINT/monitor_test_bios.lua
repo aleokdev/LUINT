@@ -18,21 +18,31 @@ function main()
 		return table.unpack(latest_event)
 	end
 
-	local screen = nil
-	local uid = nil
-	for _, address in pairs(computer.get_connections()) do
-		local proxy = computer.proxy(address)
-		if proxy.name == "PTM Monitor" then
-			screen = proxy
-			uid = address
+	local has_screen = false
+	local uid = ""
+	for i, _uid in pairs(computer.get_connections()) do
+		if computer.get_connection_interface(_uid).name:match("Monitor") then
+			has_screen = true
+			uid = _uid
 			break
 		end
 	end
 
-	if screen == nil then
+	if not has_screen then
 		print("Couldn't find any screen.")
 		return
 	end
+
+	local screen = {}
+	screen["set"] = function(char, x, y)
+		computer.send_packet("set", char, x, y)
+		coroutine.yield()
+	end
+	screen["fill"] = function(char, x, y)
+		computer.send_packet("fill", char, x, y)
+		coroutine.yield()
+	end
+	
 
 	local function write(string, x, y)
 		for i = 1, #string do

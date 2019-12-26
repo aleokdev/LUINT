@@ -65,9 +65,9 @@ int main(void)
 		LUINT::GUI::DrawMainMenuBar(session);
 		using Machine = LUINT::Machines::Machine;
 		for (std::unique_ptr<Machine>& machine : session.machines)
-		{
 			machine->Render();
-		}
+
+		session.machines.erase(std::remove_if(session.machines.begin(), session.machines.end(), [](const std::unique_ptr<Machine>& m) { return m->ShouldDelete(); }), session.machines.end());
 
 		LUINT::GUI::DrawConnections(session);
 		ImGui::Render();

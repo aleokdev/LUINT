@@ -7,12 +7,12 @@ namespace LUINT::Machines
 		ImGui::Selectable("Button");
 		if (ImGui::IsItemClicked(0))
 		{
-			network->SendEvent("button_pressed", uid);
+			network->BroadcastEvent("button_pressed", uid, std::vector<sol::object>{});
 			pressed = true;
 		}
 		if (ImGui::IsMouseReleased(0) && pressed)
 		{
-			network->SendEvent("button_released", uid);
+			network->BroadcastEvent("button_released", uid, std::vector<sol::object>{});
 			pressed = false;
 		}
 		ImGui::SetWindowSize(ImGui::GetContentRegionAvail(), ImGuiCond_Appearing);
