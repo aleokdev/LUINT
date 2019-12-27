@@ -29,6 +29,8 @@ namespace LUINT
 			OnEvent.observers[receiver](Event{ name, sender, vals, state });
 		}
 
+		lua_State* network_state;
+
 		struct Event
 		{
 			std::string name;

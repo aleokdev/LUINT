@@ -3,13 +3,13 @@
 
 namespace LUINT::Machines
 {
-	struct Keyboard : public Machine
+	struct KeyboardRelay : public Machine
 	{
-		Keyboard(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
+		KeyboardRelay(LUINT::Data::SessionData& _session, std::string _name, Network* _network) : Machine(_session, _name, _network) {};
 
-		GENERATE_MACHINEINFO(Keyboard, (MachineInfo{ "Keyboard", "aleok studios", "Simple machine that sends key_pressed and key_released events to state machines connected.", Interfaces::get_Keyboard() }));
+		GENERATE_MACHINEINFO(KeyboardRelay, (MachineInfo{ "Keyboard Relay", "aleok studios", "Simple machine that sends key_pressed and key_released events to state machines connected.", Interfaces::get_Keyboard() }));
 
 	protected:
-		//void RenderWindow() override;
+		void RenderWindow() override;
 	};
 }

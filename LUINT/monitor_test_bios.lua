@@ -20,7 +20,7 @@ function main()
 
 	local has_screen = false
 	local screen_uid = ""
-	for i, _uid in pairs(computer.get_connections()) d
+	for i, _uid in pairs(computer.get_connections()) do
 		if computer.get_connection_interface(_uid).name:match("Monitor") then
 			has_screen = true
 			screen_uid = _uid

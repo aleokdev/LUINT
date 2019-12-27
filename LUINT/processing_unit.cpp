@@ -28,9 +28,11 @@ namespace LUINT::Machines
 	{
 		if (state)
 		{
+			network->network_state = nullptr;
 			lua_close(state);
 		}
 		state = luaL_newstate();
+		network->network_state = state;
 
 		sol::state_view lua(state);
 
@@ -113,7 +115,7 @@ namespace LUINT::Machines
 	void ProcessingUnit::Shutdown()
 	{
 		is_on = false;
-		main_coroutine.reset();
+		main_coroutine.release();
 		Setup();
 		ReconnectAll();
 	}
@@ -121,6 +123,7 @@ namespace LUINT::Machines
 	void ProcessingUnit::Reboot()
 	{
 		is_on = false;
+		main_coroutine.release();
 		Setup();
 		ReconnectAll();
 		Startup();
@@ -162,6 +165,7 @@ namespace LUINT::Machines
 			if (!main_coroutine->runnable())
 			{
 				std::cout << "Main coroutine has finished executing." << std::endl;
+				Setup();
 				is_on = false;
 			}
 			if (!result.valid())
@@ -203,8 +207,10 @@ namespace LUINT::Machines
 	{
 		if (prev)
 		{
+			prev->network_state = nullptr;
 			prev->OnEvent.remove_observer(uid);
 		}
+		next->network_state = state;
 		next->OnEvent.add_observer(uid, [this](Network::Event e) { PushEvent(e); });
 	}
 

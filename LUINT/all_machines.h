@@ -8,7 +8,7 @@
 
 #include "machine_list.tpp"
 
-#define MACHINE_TYPES LUINT::Machines::Button, LUINT::Machines::Keyboard, LUINT::Machines::LED, LUINT::Machines::PTMMonitor, LUINT::Machines::ProcessingUnit
+#define MACHINE_TYPES LUINT::Machines::Button, LUINT::Machines::KeyboardRelay, LUINT::Machines::LED, LUINT::Machines::PTMMonitor, LUINT::Machines::ProcessingUnit
 
 namespace LUINT::Machines
 {

@@ -152,6 +152,7 @@
     <ClCompile Include="biosedit_window.cpp" />
     <ClCompile Include="button.cpp" />
     <ClCompile Include="gui.cpp" />
+    <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="LED.cpp" />
     <ClCompile Include="machine.cpp" />
     <ClCompile Include="main.cpp" />
