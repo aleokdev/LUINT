@@ -7,7 +7,7 @@ typedef int(*lua_CFunction) (lua_State *L);
 
 namespace LUINT::Machines
 {
-	struct LuaInterfaceFunction
+	struct LuaInterfacePacket
 	{
 		const char* name;
 		const char* description;
@@ -36,8 +36,9 @@ namespace LUINT::Machines
 
 		const char* name;
 		const char* description;
-		std::vector<LuaInterfaceFunction> functions;
+		std::vector<LuaInterfacePacket> functions;
 		std::vector<LuaInterfaceEvent> events_sent;
+		bool has_actual_functions = false;
 	};
 
 	namespace Interfaces
@@ -47,58 +48,62 @@ namespace LUINT::Machines
 			LuaInterface result;
 
 			result.name = "LUINT Processor Architecture";
-			result.description = "Contains a set of functions that generic LUINT processors possess. These are available to the local "
+			result.description = "Contains a set of packet answerers that generic LUINT processors possess. These are available to the local "
 									"processor inside the global table [computer] at startup, and also are available to other "
 									"connected machines via [computer.connections].";
-			result.functions = std::vector<LuaInterfaceFunction>
+			result.has_actual_functions = true;
+			result.functions = std::vector<LuaInterfacePacket>
 			{
 				{
 					"ticks",
 					"Returns the number of ticks that have passed since the startup of the machine.",
-					"ticks [int]"
+					"ticks [int]",
+					std::vector<LuaInterfacePacket::Argument>()
 				},
 				{
 					"get_connection_interface",
 					"Returns a table with information about a connected machine's interface.",
 					"{ name = interface_name, description = interface_description }",
-					std::vector<LuaInterfaceFunction::Argument> { {"UID"} }
+					std::vector<LuaInterfacePacket::Argument> { {"UID"} }
 				},
 				{
 					"shutdown",
 					"Turns off the processor. Not recommended to use raw, since the machine will be turned off just after the current tick. It is recommended to wrap "
 					"this function to push an event when it is called.",
-					"nil"
+					"nil",
+					std::vector<LuaInterfacePacket::Argument>()
 				},
 				{
 					"reboot",
 					"Turns off and on the processor. Not recommended to use raw, since the machine will be turned off just after the current tick. It is recommended to wrap "
 					"this function to push an event when it is called.",
-					"nil"
+					"nil",
+					std::vector<LuaInterfacePacket::Argument>()
 				},
 				{
 					"push",
 					"Pushes an event to the event queue, that will be processed in FIFO order when the machine's coroutine is executed.",
 					"nil",
-					std::vector<LuaInterfaceFunction::Argument> { {"name"}, {"args..."} }
+					std::vector<LuaInterfacePacket::Argument> { {"name"}, {"args..."} }
 				},
 				{
 					"push",
 					"Pushes an event to the event queue, that will be processed in FIFO order when the machine's coroutine is executed.",
 					"nil",
-					std::vector<LuaInterfaceFunction::Argument> { {"name"}, {"args..."} }
+					std::vector<LuaInterfacePacket::Argument> { {"name"}, {"args..."} }
 				},
 				{
 					"broadcast_packet",
 					"Sends a packet (event) through the whole network.",
 					"nil",
-					std::vector<LuaInterfaceFunction::Argument> { {"packet_name"}, {"data..."} }
+					std::vector<LuaInterfacePacket::Argument> { {"packet_name"}, {"data..."} }
 				},
 				{
 					"send_packet",
 					"Sends a packet (event) to a specific machine with a given UID in the current network. Returns true if the machine's "
 					"UID was found in the network (and thus the packet was sent correctly), and false if not.",
 					"bool",
-					std::vector<LuaInterfaceFunction::Argument> { {"packet_name"}, {"UID"}, {"data..."} }
+					std::vector<LuaInterfacePacket::Argument> { {"packet_name"}, {"UID"}, {"data..."} }
 				}
 			};
 
@@ -110,16 +115,16 @@ namespace LUINT::Machines
 			LuaInterface result;
 
 			result.name = "Simple Output Device";
-			result.description = "Contains two simple functions: One for setting the state of the machine and "
+			result.description = "Contains two simple packet answerers: One for setting the state of the machine and "
 				"another one for getting the state that was set before. Used for simple machines such as LEDs.";
-			result.functions = std::vector<LuaInterfaceFunction>
+			result.functions = std::vector<LuaInterfacePacket>
 			{
 				{
 					"set_state",
 					"Sets the state of the machine. The value type used is normally obvious: For example, if the machine "
 					"being controlled is a LED, it'll be a boolean, and if it is a digit display, it'll be an integer.",
 					"nil",
-					std::vector<LuaInterfaceFunction::Argument> { {"state"} }
+					std::vector<LuaInterfacePacket::Argument> { {"state"} }
 				},
 				{
 					"get_state",
@@ -185,8 +190,8 @@ namespace LUINT::Machines
 			LuaInterface result;
 
 			result.name = "Persistent Text Monitor";
-			result.description = "Contains functions that set or get characters from the screen.";
-			result.functions = std::vector<LuaInterfaceFunction>
+			result.description = "Contains packet answerers that set or get characters from the screen.";
+			result.functions = std::vector<LuaInterfacePacket>
 			{
 				{
 					"set",
@@ -195,7 +200,7 @@ namespace LUINT::Machines
 					"and the other ones will be ignored. If X or Y don't belong inside the screen resolution, the monitor will "
 					"not do anything.",
 					"nil",
-					std::vector<LuaInterfaceFunction::Argument> { {"char"}, {"x"}, {"y"} }
+					std::vector<LuaInterfacePacket::Argument> { {"char"}, {"x"}, {"y"} }
 				},
 				{
 					"fill",
@@ -207,7 +212,7 @@ namespace LUINT::Machines
 					"not do anything.\n"
 					"If X+W or Y+H don't belong inside the screen resolution, the behaviour will depend on the interface implementation.",
 					"nil",
-					std::vector<LuaInterfaceFunction::Argument> { {"char"}, {"x"}, {"y"}, {"w"}, {"h"} }
+					std::vector<LuaInterfacePacket::Argument> { {"char"}, {"x"}, {"y"}, {"w"}, {"h"} }
 				}
 			};
 

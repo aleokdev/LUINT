@@ -269,11 +269,14 @@ void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open
 				ImGui::PopStyleColor();
 				ImGui::Separator();
 				if (encapsulated_getallmachineinfo::info_selected->interface.functions.size() == 0)
-					ImGui::TextDisabled("No functions defined.");
+					ImGui::TextDisabled("No packet answerers defined.");
 				else
-					for (const LUINT::Machines::LuaInterfaceFunction& function : encapsulated_getallmachineinfo::info_selected->interface.functions)
+					for (const LUINT::Machines::LuaInterfacePacket& function : encapsulated_getallmachineinfo::info_selected->interface.functions)
 					{
-						ImGui::Text("function %s(", function.name);
+						if (encapsulated_getallmachineinfo::info_selected->interface.has_actual_functions)
+							ImGui::Text("function %s(", function.name);
+						else
+							ImGui::Text("packet \"%s\" {", function.name);
 						for (int i = 0; i < function.arguments.size(); i++)
 						{
 							ImGui::SameLine();
@@ -287,7 +290,10 @@ void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open
 							}
 						}
 						ImGui::SameLine();
-						ImGui::TextUnformatted(")");
+						if (encapsulated_getallmachineinfo::info_selected->interface.has_actual_functions)
+							ImGui::TextUnformatted(")");
+						else
+							ImGui::TextUnformatted("}");
 
 						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.9f, 0.9f, 1));
 						ImGui::TextUnformatted("->");
