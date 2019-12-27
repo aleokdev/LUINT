@@ -178,7 +178,6 @@ namespace LUINT::Machines
 
 		if (ImGui::MenuItem("Start up", nullptr, false, !is_on))
 		{
-			Setup();
 			Startup();
 		}
 

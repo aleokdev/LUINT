@@ -19,11 +19,11 @@ function main()
 	end
 
 	local has_screen = false
-	local uid = ""
-	for i, _uid in pairs(computer.get_connections()) do
+	local screen_uid = ""
+	for i, _uid in pairs(computer.get_connections()) d
 		if computer.get_connection_interface(_uid).name:match("Monitor") then
 			has_screen = true
-			uid = _uid
+			screen_uid = _uid
 			break
 		end
 	end
@@ -34,25 +34,23 @@ function main()
 	end
 
 	local screen = {}
-	screen["set"] = function(char, x, y)
-		computer.send_packet("set", char, x, y)
+	screen.set = function(char, x, y)
+		computer.send_packet("set", screen_uid, char, x, y)
+	end
+	screen.fill = function(char, x, y, w, h)
+		computer.send_packet("fill", screen_uid, char, x, y, w, h)
+	end
+	screen.sync = function()
 		coroutine.yield()
 	end
-	screen["fill"] = function(char, x, y, w, h)
-		computer.send_packet("fill", char, x, y, w, h)
-		coroutine.yield()
-	end
-	
-
-	local function write(string, x, y)
-		for i = 1, #string do
-			screen.set(string:sub(i, i), x + i - 1, y)
+	screen.write = function(str, x, y)
+		for i = 1, #str do
+			screen.set(str:sub(i, i), x + i - 1, y)
 		end
 	end
-	screen.write = write
 
 	screen.write("Testing monitor, 1 2 3...", 1, 1)
-	screen.write("Screen UID: " .. uid, 1, 2)
+	screen.write("Screen UID: " .. screen_uid, 1, 2)
 
 	local i = 1
 	local dir = 1
