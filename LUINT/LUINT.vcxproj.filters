@@ -16,6 +16,9 @@
     <Filter Include="Header Files\machines">
       <UniqueIdentifier>{03bd3751-8902-47dd-b4bf-348095c4aad7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\machines\processing_unit">
+      <UniqueIdentifier>{36145fdd-a685-4867-a654-639c539ca89f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -57,6 +60,9 @@
     <ClCompile Include="ptm_monitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="biosedit_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UID.h">
@@ -89,9 +95,6 @@
     <ClInclude Include="machine.h">
       <Filter>Header Files\machines</Filter>
     </ClInclude>
-    <ClInclude Include="processing_unit.h">
-      <Filter>Header Files\machines</Filter>
-    </ClInclude>
     <ClInclude Include="keyboard.h">
       <Filter>Header Files\machines</Filter>
     </ClInclude>
@@ -109,6 +112,12 @@
     </ClInclude>
     <ClInclude Include="machine_list.tpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="processing_unit.h">
+      <Filter>Header Files\machines\processing_unit</Filter>
+    </ClInclude>
+    <ClInclude Include="biosedit_window.h">
+      <Filter>Header Files\machines\processing_unit</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

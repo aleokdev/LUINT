@@ -45,8 +45,12 @@ namespace LUINT::Machines
 		{ PushEvent(Network::Event{ event_name, uid, std::vector<sol::object>(params.begin(), params.end()) }); });
 
 		t.set_function("get_connections", &ProcessingUnit::GetNetworkUIDs, this);
-		t.set_function("send_packet", [this](std::string packet_name, sol::variadic_args params)
+		t.set_function("broadcast_packet", [this](std::string packet_name, sol::variadic_args params)
 		{ network->BroadcastEvent(packet_name, uid, std::vector<sol::object>(params.begin(), params.end()), state); });
+		t.set_function("send_packet", [this](std::string packet_name, std::string uid_str, sol::variadic_args params)
+		{
+			network->SendEvent(UID(std::stoul(uid_str, 0, 16)), packet_name, uid, std::vector<sol::object>(params.begin(), params.end()), state);
+		});
 		t.set_function("get_connection_interface", [this](std::string uidstr, sol::this_state s)
 		{
 			for (auto& connection : network->get_machines())
@@ -90,12 +94,8 @@ namespace LUINT::Machines
 	{
 		sol::state_view lua(state);
 		// Create main coroutine, set it to bios main function
-		// todo: allow modifying bios
 		
-		// TODO: Replace #include with #embed_str, when MSVC supports it
-		auto result = lua.do_string(
-#include "monitor_test_bios.lua"
-);
+		auto result = lua.do_string(bios);
 		
 		if (!result.valid())
 		{
@@ -188,6 +188,13 @@ namespace LUINT::Machines
 			ImGui::MenuItem("Terminal", NULL, &showTerminal);
 			ImGui::EndMenu();
 		}
+
+		if (ImGui::BeginMenu("Config"))
+		{
+			if (ImGui::MenuItem("Edit BIOS..."))
+				bioseditwindow = std::make_unique<GUI::BIOSEditWindow>(&bios);
+			ImGui::EndMenu();
+		}
 	}
 
 	void ProcessingUnit::OnChangeNetwork(Network* prev, Network* next)
@@ -209,6 +216,14 @@ namespace LUINT::Machines
 		if (showTerminal)
 		{
 			RenderTerminal();
+		}
+
+		if (bioseditwindow)
+		{
+			bool p_open = true;
+			bioseditwindow->Draw(&p_open);
+			if (!p_open)
+				bioseditwindow.release();
 		}
 	}
 

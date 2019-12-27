@@ -23,6 +23,9 @@ namespace LUINT
 
 		void SendEvent(UID receiver, std::string name, UID sender, std::vector<sol::object> vals, lua_State* state = nullptr)
 		{
+			if (OnEvent.observers.find(receiver) == OnEvent.observers.end())
+				throw std::runtime_error("Receiver doesn't exist in observer list");
+
 			OnEvent.observers[receiver](Event{ name, sender, vals, state });
 		}
 

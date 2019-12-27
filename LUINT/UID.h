@@ -21,6 +21,7 @@ namespace LUINT
 		std::string as_string(const char* format = "{%08x}") const;
 
 		UID() = delete;
+		UID(std::size_t _hash);
 		~UID() = default;
 
 		bool operator==(const UID& other) const
@@ -34,8 +35,6 @@ namespace LUINT
 		}
 
 	private:
-		UID(std::size_t _hash);
-
 		static std::size_t mix(std::size_t);
 
 		friend std::hash<LUINT::UID>;

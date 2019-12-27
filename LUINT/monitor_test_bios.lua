@@ -38,8 +38,8 @@ function main()
 		computer.send_packet("set", char, x, y)
 		coroutine.yield()
 	end
-	screen["fill"] = function(char, x, y)
-		computer.send_packet("fill", char, x, y)
+	screen["fill"] = function(char, x, y, w, h)
+		computer.send_packet("fill", char, x, y, w, h)
 		coroutine.yield()
 	end
 	
