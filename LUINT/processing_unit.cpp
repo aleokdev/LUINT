@@ -94,12 +94,8 @@ namespace LUINT::Machines
 	{
 		sol::state_view lua(state);
 		// Create main coroutine, set it to bios main function
-		// todo: allow modifying bios
 		
-		// TODO: Replace #include with #embed_str, when MSVC supports it
-		auto result = lua.do_string(
-#include "monitor_test_bios.lua"
-);
+		auto result = lua.do_string(bios);
 		
 		if (!result.valid())
 		{
@@ -192,6 +188,13 @@ namespace LUINT::Machines
 			ImGui::MenuItem("Terminal", NULL, &showTerminal);
 			ImGui::EndMenu();
 		}
+
+		if (ImGui::BeginMenu("Config"))
+		{
+			if (ImGui::MenuItem("Edit BIOS..."))
+				bioseditwindow = std::make_unique<GUI::BIOSEditWindow>(&bios);
+			ImGui::EndMenu();
+		}
 	}
 
 	void ProcessingUnit::OnChangeNetwork(Network* prev, Network* next)
@@ -213,6 +216,14 @@ namespace LUINT::Machines
 		if (showTerminal)
 		{
 			RenderTerminal();
+		}
+
+		if (bioseditwindow)
+		{
+			bool p_open = true;
+			bioseditwindow->Draw(&p_open);
+			if (!p_open)
+				bioseditwindow.release();
 		}
 	}
 

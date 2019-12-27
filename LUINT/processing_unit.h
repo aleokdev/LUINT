@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <functional>
 #include "network.h"
+#include "biosedit_window.h"
 
 namespace LUINT::Machines
 {
@@ -57,6 +58,11 @@ namespace LUINT::Machines
 		int ticks_per_second = 20;
 		float time_since_last_tick = 0.f;
 		int ticks_since_startup = 0;
+		std::unique_ptr<GUI::BIOSEditWindow> bioseditwindow;
+		// TODO: Replace #include with #embed_str, when MSVC supports it
+		std::string bios =
+			#include "monitor_test_bios.lua"
+		;
 
 		enum class AfterTickAction
 		{
