@@ -176,8 +176,11 @@ namespace LUINT::Machines
 	{
 		sol::state_view lua(state);
 
-		if (ImGui::MenuItem("Start up"))
+		if (ImGui::MenuItem("Start up", nullptr, false, !is_on))
+		{
+			Setup();
 			Startup();
+		}
 
 		if (ImGui::MenuItem("Send signal") && is_on)
 			PushEvent(Network::Event{ "test", uid, std::vector<sol::object>{ sol::make_object(lua, "this is a test parameter")} });
