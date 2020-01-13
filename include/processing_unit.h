@@ -61,7 +61,7 @@ namespace LUINT::Machines
 		std::unique_ptr<GUI::BIOSEditWindow> bioseditwindow;
 		// TODO: Replace #include with #embed_str, when MSVC supports it
 		std::string bios =
-			#include "monitor_test_bios.lua"
+			#include "bios/monitor_test_bios.lua"
 		;
 
 		enum class AfterTickAction

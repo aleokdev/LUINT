@@ -18,10 +18,10 @@ typedef int ImGuiWindowFlags;
 
 #define MAX_MACHINENAME_LENGTH 32
 
-#define _n(c) LUINT::Machines::##c
+#define _n(c) LUINT::Machines::c
 #define GENERATE_MACHINEINFO(T, m)					\
 inline static const _n(MachineInfo) static_info = m;	\
-const _n(MachineInfo)& get_info() override { return _n(T)::static_info; }
+const _n(MachineInfo) & get_info() override { return _n(T)::static_info; }
 
 
 namespace LUINT::Machines
