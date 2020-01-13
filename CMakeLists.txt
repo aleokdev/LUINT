@@ -29,7 +29,7 @@ set(LUINT_SOURCES
 	"src/api/ptm_monitor.cpp"
 	"src/api/UID.cpp"
 )
-set(LUINT_INCLUDE_DIRECTORIES "include/" "include/misc" "lua/")
+set(LUINT_INCLUDE_DIRECTORIES "include/" "lua/")
 set(LUINT_LINK_LIBRARIES "")
 set(LUINT_LINK_DIRECTORIES "")
 

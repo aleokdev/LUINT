@@ -1,9 +1,9 @@
-#include "machine.h"
-#include "lua.hpp"
+#include "api/machine.hpp"
+#include <lua.hpp>
 #include <imgui.h>
-#include "gui.h"
+#include "gui.hpp"
 #include <algorithm>
-#include "hostdata.h"
+#include "api/hostdata.hpp"
 #include <iostream>
 
 using namespace LUINT;

@@ -1,12 +1,12 @@
 #pragma once
-#include "machine.h"
-#include "button.h"
-#include "keyboard.h"
-#include "LED.h"
-#include "ptm_monitor.h"
-#include "processing_unit.h"
+#include "api/machine.hpp"
+#include "machines/button.hpp"
+#include "machines/keyboard.hpp"
+#include "machines/LED.hpp"
+#include "machines/ptm_monitor.hpp"
+#include "machines/processing_unit.hpp"
 
-#include "machine_list.tpp"
+#include "api/machine_list.tpp"
 
 #define MACHINE_TYPES LUINT::Machines::Button, LUINT::Machines::KeyboardRelay, LUINT::Machines::LED, LUINT::Machines::PTMMonitor, LUINT::Machines::ProcessingUnit
 

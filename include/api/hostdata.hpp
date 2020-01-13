@@ -2,8 +2,8 @@
 #include <vector>
 #include <memory>
 #include <utility>
-#include "machine.h"
-#include "network.h"
+#include "api/machine.hpp"
+#include "api/network.hpp"
 
 namespace LUINT
 {

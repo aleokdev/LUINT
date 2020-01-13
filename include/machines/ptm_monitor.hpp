@@ -1,7 +1,7 @@
 #pragma once
-#include "machine.h"
+#include "api/machine.hpp"
 #include <vector>
-#include "network.h"
+#include "api/network.hpp"
 
 namespace LUINT::Machines
 {

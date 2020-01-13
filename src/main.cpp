@@ -6,9 +6,9 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include "machine.h"
-#include "gui.h"
-#include "hostdata.h"
+#include "api/machine.hpp"
+#include "gui.hpp"
+#include "api/hostdata.hpp"
 
 // Using OpenGL 4.3
 #define GLSL_VERSION "#version 430"

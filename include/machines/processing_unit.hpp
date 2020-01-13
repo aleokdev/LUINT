@@ -1,13 +1,13 @@
 #pragma once
-#include "machine.h"
+#include "api/machine.hpp"
 #include "lua.h"
 #include <memory>
 #include <queue>
 #include <tuple>
 #include <unordered_map>
 #include <functional>
-#include "network.h"
-#include "biosedit_window.h"
+#include "api/network.hpp"
+#include "misc/biosedit_window.hpp"
 
 namespace LUINT::Machines
 {

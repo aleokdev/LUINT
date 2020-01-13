@@ -12,7 +12,7 @@ namespace LUINT::Machines
 		const char* name;
 		const char* description;
 		const char* returns;
-		const struct Argument
+		struct Argument
 		{
 			const char* name;
 		};

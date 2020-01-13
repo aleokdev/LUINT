@@ -1,7 +1,7 @@
 #pragma once
-#include "observable.h"
+#include "api/observable.hpp"
 #include "sol.hpp"
-#include "UID.h"
+#include "api/UID.hpp"
 #include "lua.h"
 #include <unordered_map>
 

@@ -1,5 +1,5 @@
-#include "processing_unit.h"
-#include "gui.h"
+#include "machines/processing_unit.hpp"
+#include "gui.hpp"
 #include "lua.hpp"
 #include "lualib.h"
 #include <imgui.h>

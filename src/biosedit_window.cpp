@@ -1,4 +1,4 @@
-#include "biosedit_window.h"
+#include "misc/biosedit_window.hpp"
 #include <imgui.h>
 
 namespace LUINT::GUI

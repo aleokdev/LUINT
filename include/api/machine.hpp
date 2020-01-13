@@ -1,12 +1,12 @@
 #pragma once
 #include <string>
-#include "UID.h"
+#include "api/UID.hpp"
 #include <vector>
 #include <imgui.h> // For ImVec2
-#include "machine_list.tpp"
-#include "luainterface.h"
+#include "api/machine_list.tpp"
+#include "api/luainterface.hpp"
 #include "sol.hpp"
-#include "network.h"
+#include "api/network.hpp"
 
 struct lua_State;
 struct ImGuiIO;

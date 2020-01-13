@@ -1,13 +1,15 @@
-#include "gui.h"
+#include "gui.hpp"
 #include <imgui.h>
 #include "lua.hpp"
 #include "lualib.h"
 #include <string>
 #include <sstream>
-#include "machine.h"
-#include "hostdata.h"
-#include "luainterface.h"
-#include "network.h"
+#include "api/machine.hpp"
+#include "api/hostdata.hpp"
+#include "api/luainterface.hpp"
+#include "api/network.hpp"
+
+#include "machines/all_machines.hpp"
 
 void drawLuaStateInspectorTable(lua_State * state)
 {
@@ -226,8 +228,6 @@ struct encapsulated_createmachine
 	inline static LUINT::Data::SessionData* session;
 	inline static const LUINT::Machines::MachineInfo* machine_to_create = nullptr;
 };
-
-#include "all_machines.h"
 
 void LUINT::GUI::DrawMachineMenu(LUINT::Data::SessionData& session, bool* p_open)
 {

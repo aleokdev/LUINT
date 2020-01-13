@@ -1,6 +1,6 @@
-#include "network.h"
+#include "api/network.hpp"
 #include <algorithm>
-#include "machine.h"
+#include "api/machine.hpp"
 
 namespace LUINT
 {

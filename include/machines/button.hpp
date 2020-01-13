@@ -1,5 +1,5 @@
 #pragma once
-#include "machine.h"
+#include "api/machine.hpp"
 
 namespace LUINT::Machines
 {
